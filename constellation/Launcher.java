@@ -100,6 +100,7 @@ public class Launcher extends PApplet {
 		buttonCalib.display();
 		buttonLaser.display();
 		
+		
 		switch (this.state){
 			case IDLE:
 				break;
