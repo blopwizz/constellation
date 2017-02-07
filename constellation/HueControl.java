@@ -1,3 +1,5 @@
+package constellation;
+
 
 /*
  * Setup:
@@ -27,47 +29,47 @@ public class HueControl {
 		System.out.println(sendGET(url + username + "/lights"));
 	}
 	
-	public void printStatus(String ID) throws Exception {
+	public void printStatus(int ID) throws Exception {
 		System.out.println(sendGET(url + username + "/lights/"+ID+"/state"));
 	}
 
-	public void turnLightOn(String ID) throws Exception {
+	public void turnLightOn(int ID) throws Exception {
 		String payload = "{\"on\":true}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
 
-	public void turnLightOff(String ID) throws Exception {
+	public void turnLightOff(int ID) throws Exception {
 		String payload = "{\"on\":false}";
 		String rurl = url + username + "/lights/" + ID + "/state";
 		sendPUT(rurl, payload);
 	}
 
-	public void setHue(String ID, String hue) throws Exception {
+	public void setHue(int ID, String hue) throws Exception {
 		String payload = "{\"hue\":" + hue + "}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
 
-	public void setSat(String ID, String sat) throws Exception {
+	public void setSat(int ID, String sat) throws Exception {
 		String payload = "{\"hue\":" + sat + "}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
 
-	public void setBri(String ID, String bri) throws Exception {
+	public void setBri(int ID, String bri) throws Exception {
 		String payload = "{\"hue\":" + bri + "}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
 
-	public void colorloopOn(String ID) throws Exception {
+	public void colorloopOn(int ID) throws Exception {
 		String payload = "{\"effect\": \"colorloop\"}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
 
-	public void colorloopOff(String ID) throws Exception {
+	public void colorloopOff(int ID) throws Exception {
 		String payload = "{\"effect\": \"none\"}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
 
-	public void alert(String ID) throws Exception {
+	public void alert(int ID) throws Exception {
 		String payload = "{\"alert\": \"select\"}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}

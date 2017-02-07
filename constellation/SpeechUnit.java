@@ -11,7 +11,7 @@ public class SpeechUnit implements Runnable{
 	private State state;
 
 	private final static String ACOUSTIC_MODEL_PATH  = "resource:/edu/cmu/sphinx/models/en-us/en-us";
-	private final static String DICTIONARY_PATH = "file:res/cmudict-mi.dict";
+	private final static String DICTIONARY_PATH = "file:src/cmudict-mi.dict";
 	private final static String LANGUAGE_MODEL_PATH = "resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin";
 
 	private final static String CLOSE_STRING = "close";
@@ -61,7 +61,7 @@ public class SpeechUnit implements Runnable{
 				.setDictionaryPath(DICTIONARY_PATH);
 		configuration
 				.setLanguageModelPath(LANGUAGE_MODEL_PATH);
-
+		
 		System.out.print("Starting recognition....");
 
 		try {
@@ -152,8 +152,8 @@ public class SpeechUnit implements Runnable{
 		this.main = main;
 	}
 
-	public static void main(String[] args) throws Exception {
+//	public static void main(String[] args) throws Exception {
 //		SpeechUnit eval = new SpeechUnit();
 //		eval.run();
-	}
+//	}
 }
