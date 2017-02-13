@@ -127,8 +127,8 @@ public class LaserFrame extends Frame {
 									// infront of the camera
 
 			// points projected representation
-			strokeWeight(2);
-			stroke(100);
+			strokeWeight(3);
+			stroke(150);
 			for (int y = 0; y < context.depthHeight(); y += steps) {
 				for (int x = 0; x < context.depthWidth(); x += steps) {
 					index = x + y * context.depthWidth();
@@ -147,9 +147,10 @@ public class LaserFrame extends Frame {
 					drawIntersection(userList[i]);
 				}
 			}
+			
 			pushStyle(); // style layer: modifications of style until popStyle
 			stroke(255, 255, 255, 150);
-			strokeWeight(3);
+			strokeWeight(5);
 			line3D(backLeft, backRight);
 			line3D(backRight, frontRight);
 			line3D(frontRight, frontLeft);
@@ -177,7 +178,7 @@ public class LaserFrame extends Frame {
 
 			pushStyle(); // style layer: modifications of style until popStyle
 			stroke(255);
-			strokeWeight(5);
+			strokeWeight(10);
 			line(jointPos2.x, jointPos2.y, jointPos2.z, rayEnd.x, rayEnd.y, rayEnd.z);
 
 			if(intersectionLight(jointPos2, dir, light1, userClr[0])) {lightSelected = 1;}

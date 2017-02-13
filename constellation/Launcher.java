@@ -18,10 +18,11 @@
 *------------------------------------------------------
 *[TO DO]
 * - fix the calibration mode to do it several times if needed
+* - fix the ray
 * ------------------------------------------------------
 * 
-* Coder: Stephane GARTI
-* Date: January 2017
+* Coder: Jorg, Frederic, Stephane
+* Date: February 2017
 * Organisation: TU Berlin
 */
 
