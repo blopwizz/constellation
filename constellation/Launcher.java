@@ -28,7 +28,7 @@
 package constellation;
 
 import java.util.HashMap;
-
+import java.util.ArrayList;
 import constellation.SpeechUnit.Command;
 import processing.core.*;
 
@@ -63,11 +63,12 @@ public class Launcher extends PApplet {
 	/*
 	 * private SpeechUnit.Command command;
 	 */
-	private int selectedLight;
+	private String jsonStateBefore; //for undo
+	private ArrayList<Integer> prevSelectedLights;
+	private ArrayList<Integer> selectedLights;
 
 	private enum State {
-		// TODO: maybe model tear down as State as well
-		IDLE, TRIGGERED, WAITING_FOR_COMMAND, INSTRUCTED;
+		IDLE, WAITING_FOR_COMMAND, INSTRUCTED;
 	}
 
 	public void setup() {
@@ -87,18 +88,15 @@ public class Launcher extends PApplet {
 		switch (this.state) {
 		case IDLE:
 			break;
-		case TRIGGERED:
-			if (laserWindow != null) {
-				System.out.println("Last light selected: " + laserWindow.getLightSelected());
-				this.selectedLight = laserWindow.getLightSelected();
-			}
-			switchState(State.WAITING_FOR_COMMAND);
-			break;
 		case WAITING_FOR_COMMAND:
 			break;
 		case INSTRUCTED:
-			light.performAction(this.selectedLight, this.command);
+			this.jsonStateBefore = light.getJsonState();
+			light.performAction(this.selectedLights, this.command);
 			switchState(State.IDLE);
+			this.prevSelectedLights = this.selectedLights;
+			this.selectedLights = new ArrayList<Integer>();
+
 			break;
 		}
 	}
@@ -116,7 +114,19 @@ public class Launcher extends PApplet {
 	}
 
 	void onSelectionTrigger() {
-		switchState(State.TRIGGERED);
+		switchState(State.WAITING_FOR_COMMAND);
+		if (laserWindow != null) {
+			int selectedLight = laserWindow.getLightSelected();
+			if (selectedLight > 0) {
+				System.out.println("Last light selected: " + selectedLight);
+				this.selectedLights.add(selectedLight);
+				light.alertLight(selectedLight);
+				switchState(State.WAITING_FOR_COMMAND);
+			} else {
+				System.out.println("no light selected");
+			}
+		}
+
 	}
 
 	void onClose() {
@@ -136,21 +146,20 @@ public class Launcher extends PApplet {
 
 	private void initialize() {
 		(new Thread(this.voice)).start();
-		// (new Thread(this.light)).start();
+		this.prevSelectedLights = new ArrayList<Integer>();
+		this.selectedLights = new ArrayList<Integer>();
 	}
 
-	/*
-	 * Gesture part
-	 */
+	public void onAllSelectionTrigger() {
+		for (int i = 1; i < 10; i++) {
+			selectedLights.add(i);
+			light.alertLight(i);
+		}
+		switchState(State.WAITING_FOR_COMMAND);
+	}
 
-	/*
-	 * 
-	 * Light determineLight(){ //TODO: Actual code to determine the light
-	 * System.out.println("Determining light selection."); if
-	 * (LaserFrame.lightSelected == 1) {return Light.L1;} else if
-	 * (LaserFrame.lightSelected == 2) {return Light.L2;} else if
-	 * (LaserFrame.lightSelected == 3) {return Light.L3;} return null; }
-	 * 
-	 */
+	public void undoLast() {
+		light.setJsonState(jsonStateBefore);
+	}
 
 }

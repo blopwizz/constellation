@@ -1,5 +1,7 @@
 package constellation;
 
+import java.util.ArrayList;
+
 public class LightUnit {
 
 	private boolean hueActivated = false;
@@ -13,48 +15,76 @@ public class LightUnit {
 		System.out.println("Light Unit initialized");
 	}
 
-	public void performAction(int lightID, SpeechUnit.Command command) {
-		System.out.println("Triggered light: " + lightID + " with Command " + command + " .");
+	public String getJsonState() {
+		try {
+			return hue.getJsonStatus();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "";
+		}
+	}
+	public void setJsonState(String payload) {
+		try {
+			hue.setJsonStatus(payload);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void alertLight(int id) {
+		try {
+			hue.alert(id);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	public void performAction(ArrayList<Integer> selectedLights, SpeechUnit.Command command) {
+		System.out.println("Triggered lights: " + selectedLights + " with Command " + command + " .");
 		if (hueActivated) {
-			try {
+			for (Integer light : selectedLights) {
+				try {
 
-				switch (command) {
-				case BLUE:
-					hue.setHue(lightID, "46920");
-					break;
-				case RED:
-					hue.setHue(lightID, "0");
-					break;
-				case GREEN:
-					hue.setHue(lightID, "25500");
-					break;
-				case YELLOW:
-					hue.setHue(lightID, "12750");
-					break;
-				case WHITE:
-					hue.setHue(lightID, "46920");// TODO
-					break;
-				case PURPLE:
-					hue.setHue(lightID, "46920");
-					break;
-				case ON:
-					hue.turnLightOn(lightID);
-					break;
-				case OFF:
-					hue.turnLightOff(lightID);
-					break;
-				case BRIGHTER:
-					// TODO
-					break;
-				case LIGHTER:
-					// TODO
-					break;
-				default:
-					System.out.println("unknown command");
-					break;
+					switch (command) {
+					case BLUE:
+						hue.setHue(light.intValue(), "46920");
+						break;
+					case RED:
+						hue.setHue(light.intValue(), "0");
+						break;
+					case GREEN:
+						hue.setHue(light.intValue(), "25500");
+						break;
+					case YELLOW:
+						hue.setHue(light.intValue(), "12750");
+						break;
+					case WHITE:
+						hue.setSat(light.intValue(), "0");// TODO
+						break;
+					case PURPLE:
+						hue.setHue(light.intValue(), "46920");
+						break;
+					case ON:
+						hue.turnLightOn(light.intValue());
+						break;
+					case OFF:
+						hue.turnLightOff(light.intValue());
+						break;
+					case BRIGHTER:
+						// TODO
+						break;
+					case LIGHTER:
+						// TODO
+						break;
+					default:
+						System.out.println("unknown command");
+						break;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 

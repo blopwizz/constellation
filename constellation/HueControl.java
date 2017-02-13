@@ -1,6 +1,5 @@
 package constellation;
 
-
 /*
  * Setup:
  * connect hue to network
@@ -28,11 +27,19 @@ public class HueControl {
 	public void printStatus() throws Exception {
 		System.out.println(sendGET(url + username + "/lights"));
 	}
-	
-	public void printStatus(int ID) throws Exception {
-		System.out.println(sendGET(url + username + "/lights/"+ID+"/state"));
+
+	public String getJsonStatus() throws Exception {
+		return sendGET(url + username + "/lights");
 	}
-	
+
+	public void setJsonStatus(String payload) throws Exception {
+		sendPUT(url + username + "/lights", payload);
+	}
+
+	public void printStatus(int ID) throws Exception {
+		System.out.println(sendGET(url + username + "/lights/" + ID + "/state"));
+	}
+
 	public String getLightJson(String ID) throws Exception {
 		return sendGET(url + username + "/lights/" + ID + "/state");
 	}
@@ -81,8 +88,8 @@ public class HueControl {
 		String payload = "{\"alert\": \"select\"}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
-	
-	public void printConfig() throws Exception{
+
+	public void printConfig() throws Exception {
 		System.out.println(sendGET(url + username + "/config"));
 	}
 
