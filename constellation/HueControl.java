@@ -32,6 +32,14 @@ public class HueControl {
 	public void printStatus(int ID) throws Exception {
 		System.out.println(sendGET(url + username + "/lights/"+ID+"/state"));
 	}
+	
+	public String getLightJson(String ID) throws Exception {
+		return sendGET(url + username + "/lights/" + ID + "/state");
+	}
+
+	public void setLightJson(String ID, String payload) throws Exception {
+		sendPUT(url + username + "/lights/" + ID + "/state", payload);
+	}
 
 	public void turnLightOn(int ID) throws Exception {
 		String payload = "{\"on\":true}";
