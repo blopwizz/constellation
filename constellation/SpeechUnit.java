@@ -21,12 +21,13 @@ public class SpeechUnit implements Runnable {
 			"make that", "make this" };
 	private final static String[] ALL_LIGHTS_SELECTER = { "switch all", "make all", "turn all", "selecct all" };
 	private final static String COPY_STRING = "copy";
+	private final static String[] COPY_SECOND = {"THERE"};
 	private final static String[] UNDO_STRINGS = { "undo", "revert" };
 	private final static String[] CORRECTION_STRINGS = { "no that", "no this" };
 	private final static String[] ADD_STRING = { "and that", "and this" };
-
+	
 	private enum State {
-		IDLE, ACTIVATED, LIGHT_CHOSEN;
+		IDLE, ACTIVATED, LIGHT_CHOSEN, COPY_CHOSEN;
 	}
 
 	public enum Command {
@@ -78,6 +79,9 @@ public class SpeechUnit implements Runnable {
 					} else if (isUndo(result)) {
 						this.state = State.ACTIVATED;
 						onUndoTrigger();
+					} else if (isCopy(result)) {
+						this.state = State.COPY_CHOSEN;
+						onCopyTrigger();
 					}
 					break;
 				case LIGHT_CHOSEN:
@@ -87,10 +91,15 @@ public class SpeechUnit implements Runnable {
 							onSelectionTrigger();
 						} else {
 							onCommand(returnCommand);
-							this.state = state.ACTIVATED;
+							this.state = State.ACTIVATED;
 						}
 					}
 					break;
+				case COPY_CHOSEN:
+					if (isCopy2(result)){
+						main.onCopy2Trigger();
+						this.state=State.ACTIVATED;
+					}
 				}
 
 				if (containsClose(result)) {
@@ -108,6 +117,10 @@ public class SpeechUnit implements Runnable {
 
 	}
 
+	public void onCopyTrigger() {
+		main.onCopyTrigger();
+	}
+	
 	private void onUndoTrigger() {
 		main.undoLast();
 	}

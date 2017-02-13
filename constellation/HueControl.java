@@ -40,11 +40,11 @@ public class HueControl {
 		System.out.println(sendGET(url + username + "/lights/" + ID + "/state"));
 	}
 
-	public String getLightJson(String ID) throws Exception {
+	public String getLightJson(int ID) throws Exception {
 		return sendGET(url + username + "/lights/" + ID + "/state");
 	}
 
-	public void setLightJson(String ID, String payload) throws Exception {
+	public void setLightJson(int ID, String payload) throws Exception {
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
 

@@ -24,10 +24,19 @@ public class LightUnit {
 			return "";
 		}
 	}
-
-	public void setJsonState(String payload) {
+	public String getJsonState(int id) {
 		try {
-			hue.setJsonStatus(payload);
+			return hue.getLightJson(id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "";
+		}
+	}
+
+	public void setJsonState(int id, String payload) {
+		try {
+			hue.setLightJson(id, payload);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

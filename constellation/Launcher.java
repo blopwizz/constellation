@@ -68,7 +68,7 @@ public class Launcher extends PApplet {
 	private ArrayList<Integer> selectedLights;
 
 	private enum State {
-		IDLE, WAITING_FOR_COMMAND, INSTRUCTED;
+		IDLE, WAITING_FOR_COMMAND, INSTRUCTED, COPY_WAITING;
 	}
 
 	public void setup() {
@@ -114,7 +114,6 @@ public class Launcher extends PApplet {
 	}
 
 	void onSelectionTrigger() {
-		switchState(State.WAITING_FOR_COMMAND);
 		if (laserWindow != null) {
 			int selectedLight = laserWindow.getLightSelected();
 			if (selectedLight > 0) {
@@ -160,6 +159,39 @@ public class Launcher extends PApplet {
 
 	public void undoLast() {
 		light.setJsonState(jsonStateBefore);
+	}
+
+	public void onCopyTrigger() {
+		if (laserWindow != null) {
+			int selectedLight = laserWindow.getLightSelected();
+			if (selectedLight > 0) {
+				System.out.println("Last light selected: " + selectedLight);
+				this.selectedLights.add(selectedLight);
+				light.alertLight(selectedLight);
+				switchState(State.COPY_WAITING);
+			} else {
+				System.out.println("no light selected");
+			}
+		}
+
+		
+	}
+
+	public void onCopy2Trigger() {
+		if (laserWindow != null) {
+			int selectedLight2 = laserWindow.getLightSelected();
+			if (selectedLight2 > 0) {
+				System.out.println("Last light selected: " + selectedLight2);
+				this.selectedLights.add(selectedLight2);
+				light.alertLight(selectedLight2);
+				switchState(State.IDLE);
+				String state1 = light.getJsonState(this.selectedLights.get(0));
+				light.setJsonState(selectedLight2, state1);
+			} else {
+				System.out.println("no light selected");
+			}
+		}
+		
 	}
 
 }
