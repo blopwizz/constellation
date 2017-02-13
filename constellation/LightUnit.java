@@ -16,38 +16,60 @@ public class LightUnit {
 	}
 
 	public String getJsonState() {
-		try {
-			return hue.getJsonStatus();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "";
+		if (hueActivated) {
+			try {
+				return hue.getJsonStatus();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
 		}
+		return "";
 	}
-	public String getJsonState(int id) {
-		try {
-			return hue.getLightJson(id);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "";
+
+	public void setJsonState(String payload) {
+		if (hueActivated) {
+			try {
+				hue.setJsonStatus(payload);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
+	public String getJsonState(int id) {
+		if (hueActivated) {
+			try {
+				return hue.getLightJson(id);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
+		}
+		return "";
+	}
+
 	public void setJsonState(int id, String payload) {
-		try {
-			hue.setLightJson(id, payload);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (hueActivated) {
+			try {
+				hue.setLightJson(id, payload);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void alertLight(int id) {
-		try {
-			hue.alert(id);
-		} catch (Exception e) {
-			// TODO: handle exception
+		if (hueActivated) {
+			try {
+				hue.alert(id);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
 		}
 	}
 

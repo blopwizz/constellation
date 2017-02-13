@@ -63,7 +63,7 @@ public class Launcher extends PApplet {
 	/*
 	 * private SpeechUnit.Command command;
 	 */
-	private String jsonStateBefore; //for undo
+	private String jsonStateBefore = ""; //for undo
 	private ArrayList<Integer> prevSelectedLights;
 	private ArrayList<Integer> selectedLights;
 
@@ -98,6 +98,10 @@ public class Launcher extends PApplet {
 			this.selectedLights = new ArrayList<Integer>();
 
 			break;
+		case COPY_WAITING:
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -113,7 +117,7 @@ public class Launcher extends PApplet {
 		}
 	}
 
-	void onSelectionTrigger() {
+	boolean onSelectionTrigger() {
 		if (laserWindow != null) {
 			int selectedLight = laserWindow.getLightSelected();
 			if (selectedLight > 0) {
@@ -121,11 +125,12 @@ public class Launcher extends PApplet {
 				this.selectedLights.add(selectedLight);
 				light.alertLight(selectedLight);
 				switchState(State.WAITING_FOR_COMMAND);
+				return true;
 			} else {
 				System.out.println("no light selected");
 			}
 		}
-
+		return false;
 	}
 
 	void onClose() {
@@ -147,6 +152,7 @@ public class Launcher extends PApplet {
 		(new Thread(this.voice)).start();
 		this.prevSelectedLights = new ArrayList<Integer>();
 		this.selectedLights = new ArrayList<Integer>();
+		light = new LightUnit();
 	}
 
 	public void onAllSelectionTrigger() {

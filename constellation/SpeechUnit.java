@@ -15,17 +15,17 @@ public class SpeechUnit implements Runnable {
 	private final static String DICTIONARY_PATH = "file:src/cmudict-mi.dict";
 	private final static String LANGUAGE_MODEL_PATH = "resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin";
 
-	private final static String ACTIVATION_STRING = "constellation";
+	private final static String[] ACTIVATION_STRING = { "constellation" };
 	private final static String CLOSE_STRING = "close";
 	private final static String[] SINGLE_LIGHT_SELECTER = { "switch that", "switch this", "select that", "select that",
 			"make that", "make this" };
 	private final static String[] ALL_LIGHTS_SELECTER = { "switch all", "make all", "turn all", "selecct all" };
 	private final static String COPY_STRING = "copy";
-	private final static String[] COPY_SECOND = {"THERE"};
+	private final static String[] COPY_SECOND = { "THERE" };
 	private final static String[] UNDO_STRINGS = { "undo", "revert" };
 	private final static String[] CORRECTION_STRINGS = { "no that", "no this" };
 	private final static String[] ADD_STRING = { "and that", "and this" };
-	
+
 	private enum State {
 		IDLE, ACTIVATED, LIGHT_CHOSEN, COPY_CHOSEN;
 	}
@@ -71,8 +71,8 @@ public class SpeechUnit implements Runnable {
 					break;
 				case ACTIVATED:
 					if (isSingleLightSelection(result)) {
-						this.state = State.LIGHT_CHOSEN;
-						onSelectionTrigger();
+						if (onSelectionTrigger())
+							this.state = State.LIGHT_CHOSEN;
 					} else if (isAllLightSelection(result)) {
 						this.state = State.LIGHT_CHOSEN;
 						onAllSelectionTrigger();
@@ -96,15 +96,14 @@ public class SpeechUnit implements Runnable {
 					}
 					break;
 				case COPY_CHOSEN:
-					if (isCopy2(result)){
+					if (isCopy2(result)) {
 						main.onCopy2Trigger();
-						this.state=State.ACTIVATED;
+						this.state = State.ACTIVATED;
 					}
 				}
 
 				if (containsClose(result)) {
 					onClose();
-					break;
 				}
 
 			}
@@ -120,7 +119,7 @@ public class SpeechUnit implements Runnable {
 	public void onCopyTrigger() {
 		main.onCopyTrigger();
 	}
-	
+
 	private void onUndoTrigger() {
 		main.undoLast();
 	}
@@ -164,9 +163,9 @@ public class SpeechUnit implements Runnable {
 		return stringContainsArrayEntry(hypothesis, UNDO_STRINGS);
 	}
 
-	private boolean isUndo(SpeechResult result) {
+	private boolean isCopy2(SpeechResult result) {
 		String hypothesis = result.getHypothesis();
-		return stringContainsArrayEntry(hypothesis, UNDO_STRINGS);
+		return stringContainsArrayEntry(hypothesis, COPY_SECOND);
 	}
 
 	private boolean isCorrection(SpeechResult result) {
@@ -188,9 +187,9 @@ public class SpeechUnit implements Runnable {
 		return result.getHypothesis().contains(CLOSE_STRING);
 	}
 
-	private void onSelectionTrigger() {
+	private boolean onSelectionTrigger() {
 		System.out.println("You have triggered the light selection.");
-		main.onSelectionTrigger();
+		return main.onSelectionTrigger();
 	}
 
 	private void onAllSelectionTrigger() {
