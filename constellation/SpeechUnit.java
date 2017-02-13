@@ -21,7 +21,7 @@ public class SpeechUnit implements Runnable {
 			"make that", "make this" };
 	private final static String[] ALL_LIGHTS_SELECTER = { "switch all", "make all", "turn all", "selecct all" };
 	private final static String COPY_STRING = "copy";
-	private final static String[] COPY_SECOND = { "THERE" };
+	private final static String[] COPY_FINISH = { "THERE" };
 	private final static String[] UNDO_STRINGS = { "undo", "revert" };
 	private final static String[] CORRECTION_STRINGS = { "no that", "no this" };
 	private final static String[] ADD_STRING = { "and that", "and this" };
@@ -96,7 +96,7 @@ public class SpeechUnit implements Runnable {
 					}
 					break;
 				case COPY_CHOSEN:
-					if (isCopy2(result)) {
+					if (isCopyFinish(result)) {
 						main.onCopy2Trigger();
 						this.state = State.ACTIVATED;
 					}
@@ -163,9 +163,9 @@ public class SpeechUnit implements Runnable {
 		return stringContainsArrayEntry(hypothesis, UNDO_STRINGS);
 	}
 
-	private boolean isCopy2(SpeechResult result) {
+	private boolean isCopyFinish(SpeechResult result) {
 		String hypothesis = result.getHypothesis();
-		return stringContainsArrayEntry(hypothesis, COPY_SECOND);
+		return stringContainsArrayEntry(hypothesis, COPY_FINISH);
 	}
 
 	private boolean isCorrection(SpeechResult result) {
