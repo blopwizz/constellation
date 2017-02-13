@@ -24,6 +24,7 @@ public class LightUnit {
 			return "";
 		}
 	}
+
 	public void setJsonState(String payload) {
 		try {
 			hue.setJsonStatus(payload);
@@ -32,7 +33,7 @@ public class LightUnit {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void alertLight(int id) {
 		try {
 			hue.alert(id);
@@ -40,7 +41,7 @@ public class LightUnit {
 			// TODO: handle exception
 		}
 	}
-	
+
 	public void performAction(ArrayList<Integer> selectedLights, SpeechUnit.Command command) {
 		System.out.println("Triggered lights: " + selectedLights + " with Command " + command + " .");
 		if (hueActivated) {
@@ -50,21 +51,30 @@ public class LightUnit {
 					switch (command) {
 					case BLUE:
 						hue.setHue(light.intValue(), "46920");
+						hue.setSat(light.intValue(), "255");
 						break;
 					case RED:
 						hue.setHue(light.intValue(), "0");
+						hue.setSat(light.intValue(), "255");
 						break;
 					case GREEN:
 						hue.setHue(light.intValue(), "25500");
+						hue.setSat(light.intValue(), "255");
 						break;
 					case YELLOW:
 						hue.setHue(light.intValue(), "12750");
+						hue.setSat(light.intValue(), "255");
 						break;
 					case WHITE:
 						hue.setSat(light.intValue(), "0");// TODO
 						break;
 					case PURPLE:
 						hue.setHue(light.intValue(), "46920");
+						hue.setSat(light.intValue(), "255");
+						break;
+					case RANDOM:
+						hue.setHue(light.intValue(), "" + (int) (Math.random() * 65280));
+						hue.setSat(light.intValue(), "255");
 						break;
 					case ON:
 						hue.turnLightOn(light.intValue());

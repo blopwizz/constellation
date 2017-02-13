@@ -31,7 +31,8 @@ public class SpeechUnit implements Runnable {
 
 	public enum Command {
 		BLUE("blue"), RED("red"), GREEN("green"), YELLOW("yellow"), WHITE("white"), PURPLE("purple"), ON("on"), OFF(
-				"off"), BRIGHTER("brighter"), LIGHTER("lighter"), ADD("and that"), UNDEFINED_COMMAND("undefined");
+				"off"), BRIGHTER("brighter"), LIGHTER(
+						"lighter"), ADD("and that"), RANDOM("random"), UNDEFINED_COMMAND("undefined");
 
 		private final String word;
 
@@ -75,7 +76,7 @@ public class SpeechUnit implements Runnable {
 						this.state = State.LIGHT_CHOSEN;
 						onAllSelectionTrigger();
 					} else if (isUndo(result)) {
-						this.state = State.IDLE;
+						this.state = State.ACTIVATED;
 						onUndoTrigger();
 					}
 					break;
@@ -86,13 +87,17 @@ public class SpeechUnit implements Runnable {
 							onSelectionTrigger();
 						} else {
 							onCommand(returnCommand);
+							this.state = state.ACTIVATED;
 						}
 					}
 					break;
 				}
-				/*
-				 * if(containsClose(result)){ onClose(); break; }
-				 */
+
+				if (containsClose(result)) {
+					onClose();
+					break;
+				}
+
 			}
 			// recognizer.stopRecognition();
 
@@ -186,8 +191,8 @@ public class SpeechUnit implements Runnable {
 	}
 
 	private void onClose() {
-		System.out.println("Received close. Tearing down Speech Recognition.");
-		main.onClose();
+		System.out.println("Received close. Aborting command.");
+		this.state = State.IDLE;
 	}
 
 	public SpeechUnit(Launcher main) {
