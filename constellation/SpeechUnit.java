@@ -205,6 +205,7 @@ public class SpeechUnit implements Runnable {
 	private void onClose() {
 		System.out.println("Received close. Aborting command.");
 		this.state = State.IDLE;
+		main.onClose();
 	}
 
 	public SpeechUnit(Launcher main) {

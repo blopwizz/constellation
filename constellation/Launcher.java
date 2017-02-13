@@ -64,7 +64,7 @@ public class Launcher extends PApplet {
 	/*
 	 * private SpeechUnit.Command command;
 	 */
-	private String jsonStateBefore = ""; //for undo
+	private String jsonStateBefore = ""; // for undo
 	private ArrayList<Integer> prevSelectedLights;
 	private ArrayList<Integer> selectedLights;
 
@@ -135,8 +135,7 @@ public class Launcher extends PApplet {
 	}
 
 	void onClose() {
-		// this.shouldStop = true;
-		// TO DO: exit system
+		switchState(State.IDLE);
 	}
 
 	void onCommand(SpeechUnit.Command c) {
@@ -180,16 +179,15 @@ public class Launcher extends PApplet {
 				System.out.println("no light selected");
 			}
 		}
-
-		
 	}
 
 	public void onCopy2Trigger() {
 		if (laserWindow != null) {
 			int selectedLight2 = laserWindow.getLightSelected();
 			if (selectedLight2 > 0) {
-				System.out.println("Last light selected: " + selectedLight2);
-				this.selectedLights.add(selectedLight2);
+				System.out.println("Copying light settings");
+				System.out.println("First light selected:" + selectedLights.get(0));
+				System.out.println("Second light selected: " + selectedLight2);
 				light.alertLight(selectedLight2);
 				switchState(State.IDLE);
 				String state1 = light.getJsonState(this.selectedLights.get(0));
@@ -198,7 +196,5 @@ public class Launcher extends PApplet {
 				System.out.println("no light selected");
 			}
 		}
-		
 	}
-
 }
