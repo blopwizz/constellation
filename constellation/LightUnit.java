@@ -4,12 +4,12 @@ import java.util.ArrayList;
 
 public class LightUnit {
 
-	private boolean hueActivated = false;
+	private boolean hueActivated = true;
 	private HueControl hue;
 
 	public LightUnit() {
 		String username = "3FCBC5219152E94C7B998679E5FCCA15";
-		String url = "http://10.0.0.2/api/";
+		String url = "http://10.0.0.3/api/";
 
 		hue = new HueControl(username, url);
 		System.out.println("Light Unit initialized");
@@ -18,10 +18,12 @@ public class LightUnit {
 	public String getJsonState() {
 		if (hueActivated) {
 			try {
+				System.out.println("debug 1");
 				return hue.getJsonStatus();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				System.out.println("debug 2");
 
 			}
 		}
@@ -40,6 +42,8 @@ public class LightUnit {
 	}
 
 	public String getJsonState(int id) {
+		System.out.println("debug 3");
+
 		if (hueActivated) {
 			try {
 				return hue.getLightJson(id);
@@ -53,6 +57,8 @@ public class LightUnit {
 	}
 
 	public void setJsonState(int id, String payload) {
+		System.out.println("debug 4");
+
 		if (hueActivated) {
 			try {
 				hue.setLightJson(id, payload);
@@ -77,6 +83,8 @@ public class LightUnit {
 		System.out.println("Triggered lights: " + selectedLights + " with Command " + command + " .");
 		if (hueActivated) {
 			for (Integer light : selectedLights) {
+				System.out.println("debug 5 "+ light);
+
 				try {
 
 					switch (command) {

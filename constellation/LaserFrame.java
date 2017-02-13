@@ -7,7 +7,9 @@ import java.util.HashMap;
 
 import processing.core.*;
 
+
 public class LaserFrame extends Frame {
+	private int[] lightsInUse = {4,5,6};
 	private static final long serialVersionUID = -8312777389085939599L;
 	int xLoc;
 	int yLoc;
@@ -74,13 +76,13 @@ public class LaserFrame extends Frame {
 //			light2 =     CalibFrame.CalibApplet.light2;
 //			light3 =     CalibFrame.CalibApplet.light3;
 			
-			backLeft = new PVector (-1847.564f, -270.76373f, 9084.0f);
-			backRight = new PVector (3201.383f, -270.76373f, 9084.0f);
-			frontRight = new PVector(1824.925f,  1222.9535f, 3614.0f);
-			frontLeft = new PVector(-1973.762f,  1251.1647f, 3816.0f);
-			light1 = new PVector    (112.8585f,  1003.1871f, 3576.0f);
-			light2 = new PVector   (-1151.925f,  899.94214f, 2933.0f);
-			light3 = new PVector    (1392.872f,  430.38202f, 4463.0f);
+			backLeft = new PVector  (-2197.7861f,  640.2997f, 9870.0f);
+			backRight = new PVector (-1751.3065f,  1342.899f, 3948.0f);
+			frontRight = new PVector ( 2718.128f, 1205.9951f, 5291.0f);
+			frontLeft = new PVector   (2630.421f, 224.97023f, 9870.0f);
+			light1 = new PVector    (-1260.5065f, 441.17722f, 3994.0f);
+			light2 = new PVector     (1033.5884f, 498.20435f, 4241.0f);
+			light3 = new PVector     (-136.5742f, 1012.2554f, 4582.0f);
 
 /*
 			backLeft = map.get(CalibFrame.BACK_LEFT);
@@ -181,9 +183,9 @@ public class LaserFrame extends Frame {
 			strokeWeight(10);
 			line(jointPos2.x, jointPos2.y, jointPos2.z, rayEnd.x, rayEnd.y, rayEnd.z);
 
-			if(intersectionLight(jointPos2, dir, light1, userClr[0])) {lightSelected = 1;}
-			else if(intersectionLight(jointPos2, dir, light2, userClr[1])) {lightSelected =2;}
-			else if(intersectionLight(jointPos2, dir, light3, userClr[2])) {lightSelected =3;}
+			if(intersectionLight(jointPos2, dir, light1, userClr[0])) {lightSelected = lightsInUse[0];}
+			else if(intersectionLight(jointPos2, dir, light2, userClr[1])) {lightSelected =lightsInUse[1];}
+			else if(intersectionLight(jointPos2, dir, light3, userClr[2])) {lightSelected =lightsInUse[2];}
 			popStyle();
 		}
 

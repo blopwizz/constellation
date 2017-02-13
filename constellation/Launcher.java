@@ -164,6 +164,7 @@ public class Launcher extends PApplet {
 	}
 
 	public void undoLast() {
+		System.out.println("undoing last command");
 		light.setJsonState(jsonStateBefore);
 	}
 

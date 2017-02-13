@@ -65,12 +65,12 @@ public class HueControl {
 	}
 
 	public void setSat(int ID, String sat) throws Exception {
-		String payload = "{\"hue\":" + sat + "}";
+		String payload = "{\"sat\":" + sat + "}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
 
 	public void setBri(int ID, String bri) throws Exception {
-		String payload = "{\"hue\":" + bri + "}";
+		String payload = "{\"bri\":" + bri + "}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
 
