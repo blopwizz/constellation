@@ -21,7 +21,7 @@ public class SpeechUnit implements Runnable {
 			"make that", "make this" };
 	private final static String[] ALL_LIGHTS_SELECTER = { "switch all", "make all", "turn all", "selecct all" };
 	private final static String COPY_STRING = "copy";
-	private final static String[] COPY_FINISH = { "THERE" };
+	private final static String[] COPY_FINISH = { "there" };
 	private final static String[] UNDO_STRINGS = { "undo", "revert" };
 	private final static String[] CORRECTION_STRINGS = { "no that", "no this" };
 	private final static String[] ADD_STRING = { "and that", "and this" };
