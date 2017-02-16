@@ -22,14 +22,14 @@ public class LaserFrame extends Frame {
 
 	//LaserFrame(int x_, int y_, int w_, int h_, String name_, HashMap<String, PVector> map_) {
 
-	LaserFrame(int x_, int y_, int w_, int h_, String name_){
+	LaserFrame(int x_, int y_, int w_, int h_, String name_, HashMap<String, PVector> map_){
 		super("Embedded PApplet");
 		xLoc = x_;
 		yLoc = y_;
 		w = w_;
 		h = h_;
 		name = name_;
-		//map = map_;
+		map = map_;
 		laser = new LaserApplet();
 		add(laser, BorderLayout.CENTER);
 		laser.init();
@@ -66,6 +66,8 @@ public class LaserFrame extends Frame {
 
 		public void setup() {
 			size(1024, 768, P3D);
+			
+			
 			// ceiling and lights
 			
 //			backLeft =   CalibFrame.CalibApplet.backLeft;
@@ -75,7 +77,7 @@ public class LaserFrame extends Frame {
 //			light1 =     CalibFrame.CalibApplet.light1;
 //			light2 =     CalibFrame.CalibApplet.light2;
 //			light3 =     CalibFrame.CalibApplet.light3;
-			
+			/*
 			backLeft = new PVector  (-2197.7861f,  640.2997f, 9870.0f);
 			backRight = new PVector (-1751.3065f,  1342.899f, 3948.0f);
 			frontRight = new PVector ( 2718.128f, 1205.9951f, 5291.0f);
@@ -83,8 +85,8 @@ public class LaserFrame extends Frame {
 			light1 = new PVector    (-1260.5065f, 441.17722f, 3994.0f);
 			light2 = new PVector     (1033.5884f, 498.20435f, 4241.0f);
 			light3 = new PVector     (-136.5742f, 1012.2554f, 4582.0f);
+*/
 
-/*
 			backLeft = map.get(CalibFrame.BACK_LEFT);
 			backRight = map.get(CalibFrame.BACK_RIGHT);
 			frontLeft = map.get(CalibFrame.FRONT_LEFT);
@@ -92,10 +94,11 @@ public class LaserFrame extends Frame {
 			light1 = map.get(CalibFrame.LIGHT_1);
 			light2 = map.get(CalibFrame.LIGHT_2);
 			light3 = map.get(CalibFrame.LIGHT_3);
-*/
+
 
 			// camera setup
-			context = new SimpleOpenNI(this);
+			Launcher.parent = this;
+			context = Launcher.context;
 			context.setMirror(true);
 			if (context.isInit() == false) {
 				println("Can't init SimpleOpenNI, maybe the camera is not connected!");

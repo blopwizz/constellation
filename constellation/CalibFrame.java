@@ -93,8 +93,8 @@ public class CalibFrame extends Frame {
 
 		public void setup() {
 			size(640, 480);
-			
-			context = new SimpleOpenNI(this);
+			Launcher.parent = this;
+			context = Launcher.context;
 			context.setMirror(false);
 			// enable depthMap generation
 			context.enableDepth();
@@ -444,5 +444,6 @@ public class CalibFrame extends Frame {
 				}
 			}
 		}
+		
 	}
 }

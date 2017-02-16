@@ -29,12 +29,23 @@
 package constellation;
 
 import java.util.HashMap;
+
+import SimpleOpenNI.SimpleOpenNI;
+
 import java.util.ArrayList;
 import constellation.SpeechUnit.Command;
 import processing.core.*;
 
 public class Launcher extends PApplet {
-	/**
+	/***************************************************************
+	 *    Parameters to run the program
+	 */
+	
+	private boolean speechActivated = false;
+	
+	
+	
+	/*************************************************************
 	 * serialization (required by java on this class)
 	 */
 	private static final long serialVersionUID = 1505207865812651811L;
@@ -47,6 +58,8 @@ public class Launcher extends PApplet {
 		PApplet.main("constellation.Launcher");
 	}
 
+	public static PApplet parent;
+	public static SimpleOpenNI context;
 	private CalibFrame calibWindow;
 	private LaserFrame laserWindow;
 	private Button buttonCalib, buttonLaser;
@@ -67,6 +80,8 @@ public class Launcher extends PApplet {
 	private String jsonStateBefore = ""; // for undo
 	private ArrayList<Integer> prevSelectedLights;
 	private ArrayList<Integer> selectedLights;
+	
+
 
 	private enum State {
 		IDLE, WAITING_FOR_COMMAND, INSTRUCTED, COPY_WAITING;
@@ -75,6 +90,8 @@ public class Launcher extends PApplet {
 	public void setup() {
 		size(640, 480);
 		frameRate(15);
+		parent = new PApplet();
+		context = new SimpleOpenNI(parent);
 		buttonCalib = new Button(this, "Start Calibration", width / 2, height / 3, 200, 100);
 		buttonLaser = new Button(this, "Start Light Control", width / 2, 2 * height / 3, 200, 100);
 		voice = new SpeechUnit(this);
@@ -113,8 +130,9 @@ public class Launcher extends PApplet {
 		}
 
 		if (buttonLaser.mouseIsOver()) {
-			// map = calibWindow.getMap();
-			laserWindow = new LaserFrame(0, 0, 1024, 768, "Laser Beam");
+			println("got calib data");
+			map = calibWindow.getMap();
+			laserWindow = new LaserFrame(0, 0, 1024, 768, "Laser Beam", map);
 		}
 	}
 
@@ -149,7 +167,9 @@ public class Launcher extends PApplet {
 	}
 
 	private void initialize() {
-		(new Thread(this.voice)).start();
+		if (speechActivated) {
+			(new Thread(this.voice)).start();
+		}
 		this.prevSelectedLights = new ArrayList<Integer>();
 		this.selectedLights = new ArrayList<Integer>();
 		light = new LightUnit();
@@ -227,5 +247,14 @@ public class Launcher extends PApplet {
 		if(State.WAITING_FOR_COMMAND==state) {
 			//TODO
 		}
+	}
+	
+	
+	public void setParentPApplet(PApplet p) {
+		parent = p;
+	}
+	
+	public PApplet getParentPapplet() {
+		return parent;
 	}
 }

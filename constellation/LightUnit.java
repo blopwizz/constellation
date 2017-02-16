@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class LightUnit {
 
-	private boolean hueActivated = true;
+	private boolean hueActivated = false;
 	private HueControl hue;
 
 	public LightUnit() {
@@ -12,7 +12,12 @@ public class LightUnit {
 		String url = "http://10.0.0.3/api/";
 
 		hue = new HueControl(username, url);
-		System.out.println("Light Unit initialized");
+		System.out.print("Light Unit initialized ");
+		if (hueActivated) {
+			System.out.println("with Hue");
+		} else {
+			System.out.println("without Hue");
+		}
 	}
 
 	public String getJsonState() {
