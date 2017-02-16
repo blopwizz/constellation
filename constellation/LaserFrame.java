@@ -20,8 +20,6 @@ public class LaserFrame extends Frame {
 	LaserApplet laser;
 	private int lightSelected;
 
-	//LaserFrame(int x_, int y_, int w_, int h_, String name_, HashMap<String, PVector> map_) {
-
 	LaserFrame(int x_, int y_, int w_, int h_, String name_, HashMap<String, PVector> map_){
 		super("Embedded PApplet");
 		xLoc = x_;
@@ -69,14 +67,6 @@ public class LaserFrame extends Frame {
 			
 			
 			// ceiling and lights
-			
-//			backLeft =   CalibFrame.CalibApplet.backLeft;
-//			backRight =  CalibFrame.CalibApplet.backRight;
-//			frontRight = CalibFrame.CalibApplet.frontRight;
-//			frontLeft =  CalibFrame.CalibApplet.frontLeft;
-//			light1 =     CalibFrame.CalibApplet.light1;
-//			light2 =     CalibFrame.CalibApplet.light2;
-//			light3 =     CalibFrame.CalibApplet.light3;
 			/*
 			backLeft = new PVector  (-2197.7861f,  640.2997f, 9870.0f);
 			backRight = new PVector (-1751.3065f,  1342.899f, 3948.0f);
@@ -86,14 +76,29 @@ public class LaserFrame extends Frame {
 			light2 = new PVector     (1033.5884f, 498.20435f, 4241.0f);
 			light3 = new PVector     (-136.5742f, 1012.2554f, 4582.0f);
 */
-
-			backLeft = map.get(CalibFrame.BACK_LEFT);
-			backRight = map.get(CalibFrame.BACK_RIGHT);
-			frontLeft = map.get(CalibFrame.FRONT_LEFT);
-			frontRight = map.get(CalibFrame.FRONT_RIGHT);
-			light1 = map.get(CalibFrame.LIGHT_1);
-			light2 = map.get(CalibFrame.LIGHT_2);
-			light3 = map.get(CalibFrame.LIGHT_3);
+			if (map!=null){
+				backLeft = map.get(CalibFrame.BACK_LEFT);
+				backRight = map.get(CalibFrame.BACK_RIGHT);
+				frontLeft = map.get(CalibFrame.FRONT_LEFT);
+				frontRight = map.get(CalibFrame.FRONT_RIGHT);
+				light1 = map.get(CalibFrame.LIGHT_1);
+				light2 = map.get(CalibFrame.LIGHT_2);
+				light3 = map.get(CalibFrame.LIGHT_3);
+			}
+			else{
+				backLeft = new PVector  (-2197.7861f,  640.2997f, 9870.0f);
+				backRight = new PVector (-1751.3065f,  1342.899f, 3948.0f);
+				frontRight = new PVector ( 2718.128f, 1205.9951f, 5291.0f);
+				frontLeft = new PVector   (2630.421f, 224.97023f, 9870.0f);
+				light1 = new PVector    (-1260.5065f, 441.17722f, 3994.0f);
+				light2 = new PVector     (1033.5884f, 498.20435f, 4241.0f);
+				light3 = new PVector     (-136.5742f, 1012.2554f, 4582.0f);
+				pushStyle();
+				fill(0, 200, 0, 100);
+				rect(0, 0, width, 40);
+				text("Lights position not calibrated. Please run calibration.", 5, 30);
+				popStyle();
+			}
 
 
 			// camera setup
@@ -164,7 +169,6 @@ public class LaserFrame extends Frame {
 			ellipse3D(light2, 30, white);
 			ellipse3D(light3, 30, white);
 			popStyle();
-
 		}
 
 		public void drawIntersection(int userId) {

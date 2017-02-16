@@ -10,7 +10,7 @@
 *   - Simple Open NI is installed
 *	- the camera is connected
 *	to the computer via a USB 2.0 port
-*	- run this program as a Java Applet
+*	- run this program as a Java Application
 *   
 *   Refer to Constellation Setup Guide
 *   https://docs.google.com/document/d/1HpO8hGLaa7HpF74TBYGDHB-de1lfbYJK24u8smRUuSE
@@ -18,7 +18,6 @@
 *------------------------------------------------------
 *[TO DO]
 * - fix the calibration mode to do it several times if needed
-* - fix the ray
 * ------------------------------------------------------
 * 
 * Coder: Jorg, Frederic, Stephane
@@ -42,6 +41,7 @@ public class Launcher extends PApplet {
 	 */
 	
 	private boolean speechActivated = false;
+	private boolean hueActivated = false;
 	
 	
 	
@@ -173,6 +173,7 @@ public class Launcher extends PApplet {
 		this.prevSelectedLights = new ArrayList<Integer>();
 		this.selectedLights = new ArrayList<Integer>();
 		light = new LightUnit();
+		light.setHueActivation(hueActivated);
 	}
 
 	public void onAllSelectionTrigger() {
