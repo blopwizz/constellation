@@ -36,8 +36,8 @@ public class SpeechUnit implements Runnable {
 
 	public enum Command {
 		BLUE("blue"), RED("red"), GREEN("green"), YELLOW("yellow"), WHITE("white"), PURPLE("purple"), ON("on"), OFF(
-				"off"), BRIGHTER("brighter"), LIGHTER(
-						"lighter"), ADD("and that"), RANDOM("random"), UNDEFINED_COMMAND("undefined");
+				"off"), BRIGHTER("brighter"), DARKER(
+						"darker"), ADD("and that"), RANDOM("random"), UNDEFINED_COMMAND("undefined");
 
 		private final String word;
 

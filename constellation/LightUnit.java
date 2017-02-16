@@ -143,10 +143,10 @@ public class LightUnit {
 						hue.turnLightOff(light.intValue());
 						break;
 					case BRIGHTER:
-						// TODO
+						hue.incBri(light, "+50");
 						break;
-					case LIGHTER:
-						// TODO
+					case DARKER:
+						hue.incBri(light, "-50");
 						break;
 					default:
 						System.out.println("unknown command");
