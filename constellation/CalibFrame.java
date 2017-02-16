@@ -93,7 +93,9 @@ public class CalibFrame extends Frame {
 
 		public void setup() {
 			size(640, 480);
-			context = new SimpleOpenNI(this);
+			Launcher.parent = this;
+			Launcher.changeContext();
+			context = Launcher.context;
 			context.setMirror(false);
 			// enable depthMap generation
 			context.enableDepth();
@@ -175,7 +177,6 @@ public class CalibFrame extends Frame {
 			ellipse(tempVec6.x, tempVec6.y, 10, 10);
 			stroke(0, 0, 255);
 			ellipse(tempVec7.x, tempVec7.y, 10, 10);
-
 			popStyle();
 		}
 
