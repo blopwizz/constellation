@@ -15,7 +15,7 @@ public class LightUnit {
 
 	public LightUnit() {
 		String username = "3FCBC5219152E94C7B998679E5FCCA15";
-		String url = "http://10.0.0.3/api/";
+		String url = "http://10.0.0.2/api/";
 
 		hue = new HueControl(username, url);
 		System.out.print("Light Unit initialized ");

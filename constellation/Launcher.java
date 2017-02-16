@@ -40,8 +40,8 @@ public class Launcher extends PApplet {
 	 *    Parameters to run the program
 	 */
 	
-	private boolean speechActivated = false;
-	private boolean hueActivated = false;
+	private boolean speechActivated = true;
+	private boolean hueActivated = true;
 	
 	
 	
