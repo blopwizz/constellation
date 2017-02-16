@@ -37,6 +37,7 @@ public class Launcher extends PApplet {
 	public static void main(String[] args) {
 		PApplet.main("constellation.Launcher");
 	}
+	
 	private SimpleOpenNI camera;
 	//private SpeechUnit voice;
 	//private LightUnit light;
@@ -44,6 +45,9 @@ public class Launcher extends PApplet {
 	private State state = State.IDLE;
 	private boolean shouldStop = false;
 	//private SpeechUnit.Command command;
+	// HELP TO CONTINUE
+	private boolean helpDisplay = false;
+	private int numberLights = 3;
 	private int lightSelected;
 	private int[] lightsInUse = {4,5,6};
 	private String jsonStateBefore = ""; // for undo
@@ -215,6 +219,30 @@ public class Launcher extends PApplet {
 			int index = mouseX + mouseY * camera.depthWidth();
 			light1.set(realWorldMap[index]);		
 			}
+	}
+	
+	public void keyPressed() {
+		if (key == 'h') {
+			helpDisplay = true;
+		}
+		else if(key == '1') {
+			numberLights = 1;
+		}
+		else if(key == '2') {
+			numberLights = 2;
+		}
+		else if(key == '3') {
+			numberLights = 3;
+		}
+		else if(key == '4') {
+			numberLights = 4;
+		}
+		else if(key == '5') {
+			numberLights = 5;
+		}
+		else if(key == '6') {
+			numberLights = 6;
+		}
 	}
 	
 	
