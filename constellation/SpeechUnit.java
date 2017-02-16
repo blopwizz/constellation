@@ -8,6 +8,7 @@ import java.io.IOException;
 
 public class SpeechUnit implements Runnable {
 
+	private static final long STATE_TIMEOUT = 30 * 1000;
 	private final Launcher main;
 	private State state;
 
@@ -63,7 +64,11 @@ public class SpeechUnit implements Runnable {
 			LiveSpeechRecognizer recognizer = new LiveSpeechRecognizer(configuration);
 			recognizer.startRecognition(true);
 			System.out.println("Done");
+			long lastStateChange = getCurrentMillis();
 			while (true) {
+				if(shouldSwitchToIdle(lastStateChange)){
+					this.state = State.IDLE;
+				}
 				SpeechResult result = recognizer.getResult();
 				System.out.println(result.getHypothesis());
 				switch (state) {
@@ -132,6 +137,14 @@ public class SpeechUnit implements Runnable {
 			e.printStackTrace();
 		}
 		System.out.println("SpeechUnit closed");
+	}
+
+	private boolean shouldSwitchToIdle(long lastStateChange) {
+		return STATE_TIMEOUT < (getCurrentMillis() - lastStateChange);
+	}
+
+	private long getCurrentMillis(){
+		return Math.round(System.nanoTime()/10 ^ 6);
 	}
 
 	private void onCorrectionTrigger() {
