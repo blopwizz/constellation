@@ -79,6 +79,16 @@ public class LightUnit {
 			}
 		}
 	}
+	
+	public void changeBrightness(int id, String change) {
+		System.out.println("Adding "+change+" to brightnesslevel.");
+		try {
+			hue.incBri(id, change);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public void alertLight(int id) {
 		if (hueActivated) {
