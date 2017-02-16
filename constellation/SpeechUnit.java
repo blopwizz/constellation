@@ -25,7 +25,7 @@ public class SpeechUnit implements Runnable {
 	private final static String[] COPY_FINISH = { "there" };
 	private final static String[] COPY_ADDITIONAL = { "and there" };
 	private final static String[] UNDO_STRINGS = { "undo", "revert" };
-	private final static String[] CORRECTION_STRINGS = { "no that9", "no this" };
+	private final static String[] CORRECTION_STRINGS = { "no that", "no this" };
 	private final static String[] ADD_STRING = { "and that", "and this" };
 
 	private boolean lastActionCopy = false;
@@ -36,8 +36,8 @@ public class SpeechUnit implements Runnable {
 
 	public enum Command {
 		BLUE("blue"), RED("red"), GREEN("green"), YELLOW("yellow"), WHITE("white"), PURPLE("purple"), ON("on"), OFF(
-				"off"), BRIGHTER("brighter"), LIGHTER(
-						"lighter"), ADD("and that"), RANDOM("random"), UNDEFINED_COMMAND("undefined");
+				"off"), BRIGHTER("brighter"), DARKER(
+						"darker"), ADD("and that"), RANDOM("random"), UNDEFINED_COMMAND("undefined");
 
 		private final String word;
 
@@ -121,7 +121,7 @@ public class SpeechUnit implements Runnable {
 					break;
 				case COPY_CHOSEN:
 					if (isCopyFinish(result)) {
-						main.onCopy2Trigger();
+						onPasteTrigger();
 						switchState(State.ACTIVATED);
 						lastActionCopy = true;
 					}
@@ -156,6 +156,10 @@ public class SpeechUnit implements Runnable {
 		main.onCopyAgain();	
 	}
 
+	private void onPasteTrigger() {
+		main.onPasteTrigger();
+	}
+	
 	public void onCopyTrigger() {
 		main.onCopyTrigger();
 	}

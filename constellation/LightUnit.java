@@ -79,6 +79,16 @@ public class LightUnit {
 			}
 		}
 	}
+	
+	public void changeBrightness(int id, String change) {
+		System.out.println("Adding "+change+" to brightnesslevel.");
+		try {
+			hue.incBri(id, change);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public void alertLight(int id) {
 		if (hueActivated) {
@@ -133,10 +143,10 @@ public class LightUnit {
 						hue.turnLightOff(light.intValue());
 						break;
 					case BRIGHTER:
-						// TODO
+						hue.incBri(light, "+50");
 						break;
-					case LIGHTER:
-						// TODO
+					case DARKER:
+						hue.incBri(light, "-50");
 						break;
 					default:
 						System.out.println("unknown command");

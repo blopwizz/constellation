@@ -203,7 +203,7 @@ public class Launcher extends PApplet {
 		}
 	}
 
-	public void onCopy2Trigger() {
+	public void onPasteTrigger() {
 		if (laserWindow != null) {
 			int selectedLight2 = laserWindow.getLightSelected();
 			if (selectedLight2 > 0) {
@@ -246,7 +246,7 @@ public class Launcher extends PApplet {
 
 	public void onCorrectionTrigger() {
 		if(State.WAITING_FOR_COMMAND==state) {
-			//TODO
+
 		}
 	}
 	
