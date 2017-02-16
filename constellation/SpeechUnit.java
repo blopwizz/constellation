@@ -121,13 +121,8 @@ public class SpeechUnit implements Runnable {
 					break;
 				case COPY_CHOSEN:
 					if (isCopyFinish(result)) {
-<<<<<<< HEAD
 						onPasteTrigger();
-						this.state = State.ACTIVATED;
-=======
-						main.onCopy2Trigger();
 						switchState(State.ACTIVATED);
->>>>>>> 0a7a306abc08feda5ee003e57faeb48abbbb791c
 						lastActionCopy = true;
 					}
 				}
