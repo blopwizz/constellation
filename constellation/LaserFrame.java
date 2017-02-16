@@ -58,48 +58,11 @@ public class LaserFrame extends Frame {
 		int[] userClr = new int[] { color(255, 0, 0), color(0, 255, 0), color(0, 0, 255), color(255, 255, 0),
 				color(255, 0, 255), color(0, 255, 255) };
 		float sphereRadius = 400;
-		PVector backLeft, backRight, frontRight, frontLeft;
-		PVector light1, light2, light3;
+		
 		SimpleOpenNI context;
 
 		public void setup() {
 			size(1024, 768, P3D);
-			
-			
-			// ceiling and lights
-			/*
-			backLeft = new PVector  (-2197.7861f,  640.2997f, 9870.0f);
-			backRight = new PVector (-1751.3065f,  1342.899f, 3948.0f);
-			frontRight = new PVector ( 2718.128f, 1205.9951f, 5291.0f);
-			frontLeft = new PVector   (2630.421f, 224.97023f, 9870.0f);
-			light1 = new PVector    (-1260.5065f, 441.17722f, 3994.0f);
-			light2 = new PVector     (1033.5884f, 498.20435f, 4241.0f);
-			light3 = new PVector     (-136.5742f, 1012.2554f, 4582.0f);
-*/
-			if (map!=null){
-				backLeft = map.get(CalibFrame.BACK_LEFT);
-				backRight = map.get(CalibFrame.BACK_RIGHT);
-				frontLeft = map.get(CalibFrame.FRONT_LEFT);
-				frontRight = map.get(CalibFrame.FRONT_RIGHT);
-				light1 = map.get(CalibFrame.LIGHT_1);
-				light2 = map.get(CalibFrame.LIGHT_2);
-				light3 = map.get(CalibFrame.LIGHT_3);
-			}
-			else{
-				backLeft = new PVector  (-2197.7861f,  640.2997f, 9870.0f);
-				backRight = new PVector (-1751.3065f,  1342.899f, 3948.0f);
-				frontRight = new PVector ( 2718.128f, 1205.9951f, 5291.0f);
-				frontLeft = new PVector   (2630.421f, 224.97023f, 9870.0f);
-				light1 = new PVector    (-1260.5065f, 441.17722f, 3994.0f);
-				light2 = new PVector     (1033.5884f, 498.20435f, 4241.0f);
-				light3 = new PVector     (-136.5742f, 1012.2554f, 4582.0f);
-				pushStyle();
-				fill(0, 200, 0, 100);
-				rect(0, 0, width, 40);
-				text("Lights position not calibrated. Please run calibration.", 5, 30);
-				popStyle();
-			}
-
 
 			// camera setup
 			Launcher.parent = this;
@@ -161,13 +124,9 @@ public class LaserFrame extends Frame {
 			pushStyle(); // style layer: modifications of style until popStyle
 			stroke(255, 255, 255, 150);
 			strokeWeight(5);
-			line3D(backLeft, backRight);
-			line3D(backRight, frontRight);
-			line3D(frontRight, frontLeft);
-			line3D(frontLeft, backLeft);
-			ellipse3D(light1, 30, white);
-			ellipse3D(light2, 30, white);
-			ellipse3D(light3, 30, white);
+			for (int k = 0; k < User.NUM_LIGHTS; k++) {
+				ellipse3D(User.lightsVectors[k], 30, white);
+			}
 			popStyle();
 		}
 
@@ -189,10 +148,10 @@ public class LaserFrame extends Frame {
 			stroke(255);
 			strokeWeight(10);
 			line(jointPos2.x, jointPos2.y, jointPos2.z, rayEnd.x, rayEnd.y, rayEnd.z);
-
-			if(intersectionLight(jointPos2, dir, light1, userClr[0])) {lightSelected = lightsInUse[0];}
-			else if(intersectionLight(jointPos2, dir, light2, userClr[1])) {lightSelected =lightsInUse[1];}
-			else if(intersectionLight(jointPos2, dir, light3, userClr[2])) {lightSelected =lightsInUse[2];}
+			
+			for (int k = 0; k < User.NUM_LIGHTS; k++) {
+				if(intersectionLight(jointPos2, dir, User.lightsVectors[k], userClr[k])) {lightSelected = lightsInUse[k];}
+			}
 			popStyle();
 		}
 

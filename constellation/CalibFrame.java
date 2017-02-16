@@ -15,16 +15,9 @@ public class CalibFrame extends Frame {
 	int h;
 	int w;
 	String name;
-	CalibApplet calib;
-
-	//TODO:new code!
-	final static String BACK_LEFT = "back_left";
-	final static String BACK_RIGHT = "back_right";
-	final static String FRONT_LEFT = "fronb_left";
-	final static String FRONT_RIGHT = "front_right";
-	final static String LIGHT_1 = "light_1";
-	final static String LIGHT_2 = "light_2";
-	final static String LIGHT_3 = "light_3";
+	CalibApplet calib; 
+	
+	int numLights = 3;
 
 	CalibFrame(int x_, int y_, int w_, int h_, String name_) {
 		super("Embedded PApplet");
@@ -50,299 +43,114 @@ public class CalibFrame extends Frame {
 	public HashMap<String, PVector> getMap(){
 		return calib.getMap();
 	}
-
+	
 	public static class CalibApplet extends PApplet {
 		// serialization of the class
 		private static final long serialVersionUID = -2073021198946817730L;
-		// steps of calibration
-		final static int CALIB_START = 0;
-		final static int CALIB_BACK_LEFT = 1;
-		final static int CALIB_BACK_RIGHT = 2;
-		final static int CALIB_FRONT_RIGHT = 3;
-		final static int CALIB_FRONT_LEFT = 4;
-		final static int CALIB_LIGHT_1 = 5;
-		final static int CALIB_LIGHT_2 = 6;
-		final static int CALIB_LIGHT_3 = 7;
 
-		public final static int CALIB_DONE = 8;
-		public static int calibMode = CALIB_START;
+		private int calibStep = 0;
 		boolean screenFlag = true;
+		public static PVector[] lightsVectors;
+		public static PVector[] tempVectors;
 		
-		public static PVector backLeft = new PVector();
-		public static PVector backRight = new PVector();
-		public static PVector frontRight = new PVector();
-		public static PVector frontLeft = new PVector();
-		public static PVector light1 = new PVector();
-		public static PVector light2 = new PVector();
-		public static PVector light3 = new PVector();
-		public static PVector tempVec1 = new PVector();
-		public static PVector tempVec2 = new PVector();
-		public static PVector tempVec3 = new PVector();
-		public static PVector tempVec4 = new PVector();
-		public static PVector tempVec5 = new PVector();
-		public static PVector tempVec6 = new PVector();
-		public static PVector tempVec7 = new PVector();
-		SimpleOpenNI context;
-
 		private HashMap<String, PVector> map;
-		
 		public HashMap<String, PVector> getMap() {
 			return this.map;
 		}
+		
+		SimpleOpenNI context;
 
 		public void setup() {
 			size(640, 480);
+			
+			//SimpleOpenNI camera set up
 			Launcher.parent = this;
 			context = Launcher.context;
 			context.setMirror(false);
-			// enable depthMap generation
-			context.enableDepth();
+			context.enableDepth();  
 			if (context.isInit() == false) {
 				println("Can't open the depthMap, maybe the camera is not connected!");
 				exit();
 			}
-			// align depth data to image data
-			context.alternativeViewPointDepthToImage();
+			context.alternativeViewPointDepthToImage(); // align depth data to image data
+			
+			// calibration info
+			lightsVectors = new PVector[User.NUM_LIGHTS];
+			lightsVectors[0] = new PVector  (-2197.7861f,  640.2997f, 9870.0f);
+			lightsVectors[1] = new PVector (-1751.3065f,  1342.899f, 3948.0f);
+			lightsVectors[2] = new PVector ( 2718.128f, 1205.9951f, 5291.0f);
+			lightsVectors[3] = new PVector   (2630.421f, 224.97023f, 9870.0f);
+			lightsVectors[4] = new PVector    (-1260.5065f, 441.17722f, 3994.0f);
+			lightsVectors[5] = new PVector     (1033.5884f, 498.20435f, 4241.0f);
+			lightsVectors[6] = new PVector     (-136.5742f, 1012.2554f, 4582.0f);
+			tempVectors[0] = new PVector   (640.2997f, 9870.0f);
+			tempVectors[1] = new PVector   (1342.899f, 3948.0f);
+			tempVectors[2] = new PVector   (1205.9951f, 5291.0f);
+			tempVectors[3] = new PVector   (224.97023f, 9870.0f);
+			tempVectors[4] = new PVector   (441.17722f, 3994.0f);
+			tempVectors[5] = new PVector   (498.20435f, 4241.0f);
+			tempVectors[6] = new PVector   (1012.2554f, 4582.0f);
 		}
 
 		public void draw() {
-			// update the cam
-			context.update();
+			context.update();   //update the cam
+			image(context.depthImage(), 0, 0);   //display the camera image
 
-			image(context.depthImage(), 0, 0);
-
-			// draw text background
+			// instructions
 			pushStyle();
 			noStroke();
 			fill(0, 200, 0, 100);
 			rect(0, 0, width, 40);
 			popStyle();
-
-			switch (calibMode) {
-			case CALIB_START:
-				text("To start the calibration press SPACE!", 5, 30);
-				break;
-			case CALIB_BACK_LEFT:
-				text("Set the point at the back left corner of the ceiling and press SPACE to confirm.", 5, 30);
-				break;
-			case CALIB_BACK_RIGHT:
-				text("Set the point at the back right corner of the ceiling and press SPACE to confirm.", 5, 30);
-				break;
-			case CALIB_FRONT_RIGHT:
-				text("Set the point at the front right corner of the ceiling and press SPACE to confirm.", 5, 30);
-				break;
-			case CALIB_FRONT_LEFT:
-				text("Set the point at the front left corner of the ceiling and press SPACE to confirm.", 5, 30);
-				break;
-			case CALIB_LIGHT_1:
-				text("Set the position of light 1 and press SPACE to confirm.", 5, 30);
-				break;
-			case CALIB_LIGHT_2:
-				text("Set the position of light 2 and press SPACE to confirm.", 5, 30);
-				break;
-			case CALIB_LIGHT_3:
-				text("Set the position of light 3 and press SPACE to confirm.", 5, 30);
-				break;
-			case CALIB_DONE:
-				text("New ceiling is defined! You can close this window.", 5, 30);
-				break;
+			if (calibStep == 0) {text("To start the calibration press SPACE!", 5, 30);}
+			else if(calibStep == User.NUM_LIGHTS -1) {text("New ceiling is defined! You can close this window.", 5, 30);}
+			else{
+				text("Set the light number " + calibStep + " and press SPACE to confirm.", 5, 30);
 			}
 
-			// draw
 			drawCalibPoint();
 
+			for (int k = 0; k< User.NUM_LIGHTS; k++){
+				PVector tempVector = new PVector();
+				context.convertRealWorldToProjective(lightsVectors[k], tempVector);
+				tempVectors[k] = tempVector;
+			}
+			
+			// drawing lights display
 			pushStyle();
 			strokeWeight(3);
 			noFill();
-
-			context.convertRealWorldToProjective(backLeft, tempVec1);
-			context.convertRealWorldToProjective(backRight, tempVec2);
-			context.convertRealWorldToProjective(frontRight, tempVec3);
-			context.convertRealWorldToProjective(frontLeft, tempVec4);
-			context.convertRealWorldToProjective(light1, tempVec5);
-			context.convertRealWorldToProjective(light2, tempVec6);
-			context.convertRealWorldToProjective(light3, tempVec7);
-
-			stroke(255, 255, 255, 150);
-			ellipse(tempVec1.x, tempVec1.y, 10, 10);
-			line(tempVec1.x, tempVec1.y, tempVec2.x, tempVec2.y);
-			line(tempVec2.x, tempVec2.y, tempVec3.x, tempVec3.y);
-			line(tempVec3.x, tempVec3.y, tempVec4.x, tempVec4.y);
-			line(tempVec4.x, tempVec4.y, tempVec1.x, tempVec1.y);
 			stroke(255, 0, 0);
-			ellipse(tempVec5.x, tempVec5.y, 10, 10);
-			stroke(0, 255, 0);
-			ellipse(tempVec6.x, tempVec6.y, 10, 10);
-			stroke(0, 0, 255);
-			ellipse(tempVec7.x, tempVec7.y, 10, 10);
-
+			for (int k = 0; k< User.NUM_LIGHTS; k++){
+				ellipse(tempVectors[k].x, tempVectors[k].y, 10, 10);
+			}
 			popStyle();
 		}
+		
+		
+		
 
 		public void drawCalibPoint() {
 			pushStyle();
-
 			strokeWeight(3);
 			noFill();
-
-			switch (calibMode) {
-			case CALIB_START:
-				break;
-			case CALIB_BACK_LEFT:
-				context.convertRealWorldToProjective(backLeft, tempVec1);
-
-				stroke(255, 255, 255, 150);
-				ellipse(tempVec1.x, tempVec1.y, 10, 10);
-				break;
-
-			case CALIB_BACK_RIGHT:
-				// draw the null point
-				context.convertRealWorldToProjective(backLeft, tempVec1);
-				context.convertRealWorldToProjective(backRight, tempVec2);
-
-				stroke(255, 255, 255, 150);
-				ellipse(tempVec1.x, tempVec1.y, 10, 10);
-
-				stroke(255, 255, 255, 150);
-				ellipse(tempVec2.x, tempVec2.y, 10, 10);
-				line(tempVec1.x, tempVec1.y, tempVec2.x, tempVec2.y);
-
-				break;
-			case CALIB_FRONT_RIGHT:
-
-				context.convertRealWorldToProjective(backLeft, tempVec1);
-				context.convertRealWorldToProjective(backRight, tempVec2);
-				context.convertRealWorldToProjective(frontRight, tempVec3);
-
-				stroke(255, 255, 255, 150);
-				ellipse(tempVec1.x, tempVec1.y, 10, 10);
-
-				ellipse(tempVec2.x, tempVec2.y, 10, 10);
-				line(tempVec1.x, tempVec1.y, tempVec2.x, tempVec2.y);
-
-				ellipse(tempVec3.x, tempVec3.y, 10, 10);
-				line(tempVec2.x, tempVec2.y, tempVec3.x, tempVec3.y);
-				break;
-
-			case CALIB_FRONT_LEFT:
-
-				context.convertRealWorldToProjective(backLeft, tempVec1);
-				context.convertRealWorldToProjective(backRight, tempVec2);
-				context.convertRealWorldToProjective(frontRight, tempVec3);
-				context.convertRealWorldToProjective(frontLeft, tempVec4);
-
-				stroke(255, 255, 255, 150);
-				ellipse(tempVec1.x, tempVec1.y, 10, 10);
-
-				ellipse(tempVec2.x, tempVec2.y, 10, 10);
-				line(tempVec1.x, tempVec1.y, tempVec2.x, tempVec2.y);
-
-				ellipse(tempVec3.x, tempVec3.y, 10, 10);
-				line(tempVec2.x, tempVec2.y, tempVec3.x, tempVec3.y);
-
-				ellipse(tempVec4.x, tempVec4.y, 10, 10);
-				line(tempVec3.x, tempVec3.y, tempVec4.x, tempVec4.y);
-
-				line(tempVec4.x, tempVec4.y, tempVec1.x, tempVec1.y);
-				break;
-
-			case CALIB_LIGHT_1:
-
-				context.convertRealWorldToProjective(backLeft, tempVec1);
-				context.convertRealWorldToProjective(backRight, tempVec2);
-				context.convertRealWorldToProjective(frontRight, tempVec3);
-				context.convertRealWorldToProjective(frontLeft, tempVec4);
-				context.convertRealWorldToProjective(light1, tempVec5);
-
-				stroke(255, 255, 255, 150);
-				ellipse(tempVec1.x, tempVec1.y, 10, 10);
-
-				ellipse(tempVec2.x, tempVec2.y, 10, 10);
-				line(tempVec1.x, tempVec1.y, tempVec2.x, tempVec2.y);
-
-				ellipse(tempVec3.x, tempVec3.y, 10, 10);
-				line(tempVec2.x, tempVec2.y, tempVec3.x, tempVec3.y);
-
-				ellipse(tempVec4.x, tempVec4.y, 10, 10);
-				line(tempVec3.x, tempVec3.y, tempVec4.x, tempVec4.y);
-
-				line(tempVec4.x, tempVec4.y, tempVec1.x, tempVec1.y);
-
-				stroke(255, 0, 0);
-				ellipse(tempVec5.x, tempVec5.y, 10, 10);
-				break;
-
-			case CALIB_LIGHT_2:
-
-				context.convertRealWorldToProjective(backLeft, tempVec1);
-				context.convertRealWorldToProjective(backRight, tempVec2);
-				context.convertRealWorldToProjective(frontRight, tempVec3);
-				context.convertRealWorldToProjective(frontLeft, tempVec4);
-				context.convertRealWorldToProjective(light1, tempVec5);
-				context.convertRealWorldToProjective(light2, tempVec6);
-
-				stroke(255, 255, 255, 150);
-				ellipse(tempVec1.x, tempVec1.y, 10, 10);
-
-				ellipse(tempVec2.x, tempVec2.y, 10, 10);
-				line(tempVec1.x, tempVec1.y, tempVec2.x, tempVec2.y);
-
-				ellipse(tempVec3.x, tempVec3.y, 10, 10);
-				line(tempVec2.x, tempVec2.y, tempVec3.x, tempVec3.y);
-
-				ellipse(tempVec4.x, tempVec4.y, 10, 10);
-				line(tempVec3.x, tempVec3.y, tempVec4.x, tempVec4.y);
-
-				line(tempVec4.x, tempVec4.y, tempVec1.x, tempVec1.y);
-
-				stroke(255, 0, 0);
-				ellipse(tempVec5.x, tempVec5.y, 10, 10);
-
-				stroke(0, 255, 0);
-				ellipse(tempVec6.x, tempVec6.y, 10, 10);
-
-				break;
-
-			case CALIB_LIGHT_3:
-
-				context.convertRealWorldToProjective(backLeft, tempVec1);
-				context.convertRealWorldToProjective(backRight, tempVec2);
-				context.convertRealWorldToProjective(frontRight, tempVec3);
-				context.convertRealWorldToProjective(frontLeft, tempVec4);
-				context.convertRealWorldToProjective(light1, tempVec5);
-				context.convertRealWorldToProjective(light2, tempVec6);
-				context.convertRealWorldToProjective(light3, tempVec7);
-
-				stroke(255, 255, 255, 150);
-				ellipse(tempVec1.x, tempVec1.y, 10, 10);
-
-				ellipse(tempVec2.x, tempVec2.y, 10, 10);
-				line(tempVec1.x, tempVec1.y, tempVec2.x, tempVec2.y);
-
-				ellipse(tempVec3.x, tempVec3.y, 10, 10);
-				line(tempVec2.x, tempVec2.y, tempVec3.x, tempVec3.y);
-
-				ellipse(tempVec4.x, tempVec4.y, 10, 10);
-				line(tempVec3.x, tempVec3.y, tempVec4.x, tempVec4.y);
-
-				line(tempVec4.x, tempVec4.y, tempVec1.x, tempVec1.y);
-
-				stroke(255, 0, 0);
-				ellipse(tempVec5.x, tempVec5.y, 10, 10);
-
-				stroke(0, 255, 0);
-				ellipse(tempVec6.x, tempVec6.y, 10, 10);
-				stroke(0, 0, 255);
-				ellipse(tempVec7.x, tempVec7.y, 10, 10);
-
-				break;
-
-			case CALIB_DONE:
-				break;
+			
+			if (calibStep == 0) {
 			}
-
+			if (calibStep == User.NUM_LIGHTS) {
+			}
+			else {
+				for (int k = 0; k < calibStep; k++){
+					context.convertRealWorldToProjective(lightsVectors[k], tempVectors[k]);
+					stroke(255, 0, 0);
+					ellipse(tempVectors[k].x, tempVectors[k].y, 10, 10);
+				}
+			}
 			popStyle();
 		}
+		
+		
+		
 
 		public void keyPressed() {
 			switch (key) {
@@ -350,29 +158,18 @@ public class CalibFrame extends Frame {
 				screenFlag = !screenFlag;
 				break;
 			case ' ':
-				calibMode++;
-				if (calibMode == CALIB_DONE) {
-					println("Set the user defined ceiling");
-					println("backLeft: " + backLeft);
-					println("backRight: " + backRight);
-					println("frontRight: " + frontRight);
-					println("frontLeft: " + frontLeft);
-					println("light 1: " + light1);
-					println("light 2: " + light2);
-					println("light 3: " + light3);
-
+				calibStep++;
+				if (calibStep == User.NUM_LIGHTS) {
+					println("Lights position are calibrated.");
+					for (int k = 0; k< User.NUM_LIGHTS; k++){
+						println("Light " + k + lightsVectors[k]);
+					}
 
 					this.map = new HashMap<>();
-					map.put(BACK_LEFT, backLeft);
-					map.put(BACK_RIGHT, backRight);
-					map.put(FRONT_LEFT, frontLeft);
-					map.put(FRONT_RIGHT, frontRight);
-					map.put(LIGHT_1, light1);
-					map.put(LIGHT_2, light2);
-					map.put(LIGHT_3, light3);
-
+					for (int k = 0; k< User.NUM_LIGHTS; k++){
+						map.put("k", lightsVectors[k]);
+					}
 				}
-
 				break;
 			}
 		}
@@ -381,29 +178,9 @@ public class CalibFrame extends Frame {
 			if (mouseButton == LEFT) {
 				PVector[] realWorldMap = context.depthMapRealWorld();
 				int index = mouseX + mouseY * context.depthWidth();
-
-				switch (calibMode) {
-				case CALIB_BACK_LEFT:
-					backLeft.set(realWorldMap[index]);
-					break;
-				case CALIB_BACK_RIGHT:
-					backRight.set(realWorldMap[index]);
-					break;
-				case CALIB_FRONT_RIGHT:
-					frontRight.set(realWorldMap[index]);
-					break;
-				case CALIB_FRONT_LEFT:
-					frontLeft.set(realWorldMap[index]);
-					break;
-				case CALIB_LIGHT_1:
-					light1.set(realWorldMap[index]);
-					break;
-				case CALIB_LIGHT_2:
-					light2.set(realWorldMap[index]);
-					break;
-				case CALIB_LIGHT_3:
-					light3.set(realWorldMap[index]);
-					break;
+				
+				for (int k = 0; k< User.NUM_LIGHTS; k++){
+					lightsVectors[k].set(realWorldMap[index]);
 				}
 			} else {
 				PVector[] realWorldMap = context.depthMapRealWorld();
@@ -417,29 +194,15 @@ public class CalibFrame extends Frame {
 			if (mouseButton == LEFT) {
 				PVector[] realWorldMap = context.depthMapRealWorld();
 				int index = mouseX + mouseY * context.depthWidth();
-
-				switch (calibMode) {
-				case CALIB_BACK_LEFT:
-					backLeft.set(realWorldMap[index]);
-					break;
-				case CALIB_BACK_RIGHT:
-					backRight.set(realWorldMap[index]);
-					break;
-				case CALIB_FRONT_RIGHT:
-					frontRight.set(realWorldMap[index]);
-					break;
-				case CALIB_FRONT_LEFT:
-					frontLeft.set(realWorldMap[index]);
-					break;
-				case CALIB_LIGHT_1:
-					light1.set(realWorldMap[index]);
-					break;
-				case CALIB_LIGHT_2:
-					light2.set(realWorldMap[index]);
-					break;
-				case CALIB_LIGHT_3:
-					light3.set(realWorldMap[index]);
-					break;
+				
+				if (calibStep == 0) {
+				}
+				if (calibStep == User.NUM_LIGHTS) {
+				}
+				else {
+					for (int k = 0; k < calibStep; k++){
+						lightsVectors[k].set(realWorldMap[index]);
+					}
 				}
 			}
 		}

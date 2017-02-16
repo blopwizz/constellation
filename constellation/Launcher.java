@@ -36,14 +36,6 @@ import constellation.SpeechUnit.Command;
 import processing.core.*;
 
 public class Launcher extends PApplet {
-	/***************************************************************
-	 *    Parameters to run the program
-	 */
-	
-	private boolean speechActivated = true;
-	private boolean hueActivated = true;
-	
-	
 	
 	/*************************************************************
 	 * serialization (required by java on this class)
@@ -126,6 +118,14 @@ public class Launcher extends PApplet {
 	// mouse button clicked
 	public void mousePressed() {
 		if (buttonCalib.mouseIsOver()) {
+			// calibration info
+			User.lightsVectors[0] = new PVector  (-2197.7861f,  640.2997f, 9870.0f);
+			User.lightsVectors[1] = new PVector (-1751.3065f,  1342.899f, 3948.0f);
+			User.lightsVectors[2] = new PVector ( 2718.128f, 1205.9951f, 5291.0f);
+			User.lightsVectors[3] = new PVector   (2630.421f, 224.97023f, 9870.0f);
+			User.lightsVectors[4] = new PVector    (-1260.5065f, 441.17722f, 3994.0f);
+			User.lightsVectors[5] = new PVector     (1033.5884f, 498.20435f, 4241.0f);
+			User.lightsVectors[6] = new PVector     (-136.5742f, 1012.2554f, 4582.0f);
 			calibWindow = new CalibFrame(0, 0, 640, 480, "Calibration");
 		}
 
@@ -167,13 +167,13 @@ public class Launcher extends PApplet {
 	}
 
 	private void initialize() {
-		if (speechActivated) {
+		if (User.SPEECH_ACTIVE) {
 			(new Thread(this.voice)).start();
 		}
 		this.prevSelectedLights = new ArrayList<Integer>();
 		this.selectedLights = new ArrayList<Integer>();
 		light = new LightUnit();
-		light.setHueActivation(hueActivated);
+		light.setHueActivation(User.HUE_ACTIVE);
 	}
 
 	public void onAllSelectionTrigger() {
