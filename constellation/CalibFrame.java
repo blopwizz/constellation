@@ -93,7 +93,6 @@ public class CalibFrame extends Frame {
 
 		public void setup() {
 			size(640, 480);
-			
 			context = new SimpleOpenNI(this);
 			context.setMirror(false);
 			// enable depthMap generation

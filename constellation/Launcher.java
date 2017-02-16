@@ -29,6 +29,9 @@
 package constellation;
 
 import java.util.HashMap;
+
+import SimpleOpenNI.SimpleOpenNI;
+
 import java.util.ArrayList;
 import constellation.SpeechUnit.Command;
 import processing.core.*;
@@ -149,7 +152,7 @@ public class Launcher extends PApplet {
 	}
 
 	private void initialize() {
-		(new Thread(this.voice)).start();
+		//(new Thread(this.voice)).start();
 		this.prevSelectedLights = new ArrayList<Integer>();
 		this.selectedLights = new ArrayList<Integer>();
 		light = new LightUnit();

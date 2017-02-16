@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class LightUnit {
 
-	private boolean hueActivated = true;
+	private boolean hueActivated = false;
 	private HueControl hue;
 
 	public LightUnit() {
