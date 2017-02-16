@@ -68,7 +68,7 @@ public class SpeechUnit implements Runnable {
 			while (true) {
 				if(shouldSwitchToIdle(lastStateChange)){
 					System.out.println("After " + STATE_TIMEOUT + " milliseconds of no command, we switch back to Idle state.");
-					this.state = State.IDLE;
+					switchState(State.IDLE);
 				}
 				SpeechResult result = recognizer.getResult();
 				System.out.println(result.getHypothesis());
@@ -76,7 +76,7 @@ public class SpeechUnit implements Runnable {
 				case IDLE:
 					if (isActivation(result)) {
 						lastActionCopy = false;
-						this.state = State.ACTIVATED;
+						switchState(State.ACTIVATED);
 					}
 					break;
 				case ACTIVATED:
@@ -90,7 +90,7 @@ public class SpeechUnit implements Runnable {
 						onAllSelectionTrigger();
 					} else if (isUndo(result)) {
 						lastActionCopy = false;
-						this.state = State.ACTIVATED;
+						switchState(State.ACTIVATED);
 						onUndoTrigger();
 					} else if (isCopy(result)) {
 						lastActionCopy = false;
@@ -115,14 +115,14 @@ public class SpeechUnit implements Runnable {
 							onSelectionTrigger();
 						} else {
 							onCommand(returnCommand);
-							this.state = State.ACTIVATED;
+							switchState(State.ACTIVATED);
 						}
 					}
 					break;
 				case COPY_CHOSEN:
 					if (isCopyFinish(result)) {
 						main.onCopy2Trigger();
-						this.state = State.ACTIVATED;
+						switchState(State.ACTIVATED);
 						lastActionCopy = true;
 					}
 				}
@@ -172,6 +172,11 @@ public class SpeechUnit implements Runnable {
 			}
 		}
 		return Command.UNDEFINED_COMMAND;
+	}
+	
+	private void switchState(SpeechUnit.State state){
+		System.out.println("SpeechUnit: switching to State" +  state.name());
+		this.state = state;
 	}
 
 	private boolean isSingleLightSelection(SpeechResult result) {
@@ -249,12 +254,12 @@ public class SpeechUnit implements Runnable {
 
 	private void onClose() {
 		System.out.println("Received close. Aborting command.");
-		this.state = State.IDLE;
+		switchState(State.IDLE);
 		main.onClose();
 	}
 
 	public SpeechUnit(Launcher main) {
-		this.state = State.IDLE;
+		switchState(State.IDLE);
 		this.main = main;
 	}
 
