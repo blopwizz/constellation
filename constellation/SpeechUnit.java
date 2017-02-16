@@ -22,10 +22,13 @@ public class SpeechUnit implements Runnable {
 	private final static String[] ALL_LIGHTS_SELECTER = { "switch all", "make all", "turn all", "selecct all" };
 	private final static String COPY_STRING = "copy";
 	private final static String[] COPY_FINISH = { "there" };
+	private final static String[] COPY_ADDITIONAL = { "and there" };
 	private final static String[] UNDO_STRINGS = { "undo", "revert" };
-	private final static String[] CORRECTION_STRINGS = { "no that", "no this" };
+	private final static String[] CORRECTION_STRINGS = { "no that9", "no this" };
 	private final static String[] ADD_STRING = { "and that", "and this" };
 
+	private boolean lastActionCopy = false;
+	
 	private enum State {
 		IDLE, ACTIVATED, LIGHT_CHOSEN, COPY_CHOSEN;
 	}
@@ -66,25 +69,40 @@ public class SpeechUnit implements Runnable {
 				switch (state) {
 				case IDLE:
 					if (isActivation(result)) {
+						lastActionCopy = false;
 						this.state = State.ACTIVATED;
 					}
 					break;
 				case ACTIVATED:
 					if (isSingleLightSelection(result)) {
+						lastActionCopy = false;
 						if (onSelectionTrigger())
 							this.state = State.LIGHT_CHOSEN;
 					} else if (isAllLightSelection(result)) {
+						lastActionCopy = false;
 						this.state = State.LIGHT_CHOSEN;
 						onAllSelectionTrigger();
 					} else if (isUndo(result)) {
+						lastActionCopy = false;
 						this.state = State.ACTIVATED;
 						onUndoTrigger();
 					} else if (isCopy(result)) {
+						lastActionCopy = false;
 						this.state = State.COPY_CHOSEN;
 						onCopyTrigger();
+					} else if (lastActionCopy && isCopyAdditional(result)) {
+						onCopyAgain();
 					}
 					break;
 				case LIGHT_CHOSEN:
+					lastActionCopy = false;
+					if (isAdd(result)) {
+						onSelectionTrigger();
+						break;
+					} else if (isCorrection(result)) {
+						onCorrectionTrigger();
+						break;
+					}
 					Command returnCommand = getCommand(result);
 					if (Command.UNDEFINED_COMMAND != returnCommand) {
 						if (returnCommand == Command.ADD) {
@@ -99,6 +117,7 @@ public class SpeechUnit implements Runnable {
 					if (isCopyFinish(result)) {
 						main.onCopy2Trigger();
 						this.state = State.ACTIVATED;
+						lastActionCopy = true;
 					}
 				}
 
@@ -113,7 +132,14 @@ public class SpeechUnit implements Runnable {
 			e.printStackTrace();
 		}
 		System.out.println("SpeechUnit closed");
+	}
 
+	private void onCorrectionTrigger() {
+		main.onCorrectionTrigger();		
+	}
+
+	private void onCopyAgain() {
+		main.onCopyAgain();	
 	}
 
 	public void onCopyTrigger() {
@@ -166,6 +192,11 @@ public class SpeechUnit implements Runnable {
 	private boolean isCopyFinish(SpeechResult result) {
 		String hypothesis = result.getHypothesis();
 		return stringContainsArrayEntry(hypothesis, COPY_FINISH);
+	}
+	
+	private boolean isCopyAdditional(SpeechResult result) {
+		String hypothesis = result.getHypothesis();
+		return stringContainsArrayEntry(hypothesis, COPY_ADDITIONAL);
 	}
 
 	private boolean isCorrection(SpeechResult result) {

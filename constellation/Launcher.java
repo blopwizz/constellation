@@ -164,7 +164,7 @@ public class Launcher extends PApplet {
 	}
 
 	public void undoLast() {
-		System.out.println("undoing last command");
+		System.out.println("Reverting last change.");
 		light.setJsonState(jsonStateBefore);
 	}
 
@@ -191,11 +191,41 @@ public class Launcher extends PApplet {
 				System.out.println("Second light selected: " + selectedLight2);
 				light.alertLight(selectedLight2);
 				switchState(State.IDLE);
+				this.jsonStateBefore = light.getJsonState();
 				String state1 = light.getJsonState(this.selectedLights.get(0));
 				light.setJsonState(selectedLight2, state1);
+				prevSelectedLights = this.selectedLights;
+				selectedLights=new ArrayList<Integer>();
 			} else {
 				System.out.println("no light selected");
 			}
+		}
+	}
+
+	public void onCopyAgain() {
+		this.selectedLights = prevSelectedLights;
+		if (laserWindow != null) {
+			int selectedLight2 = laserWindow.getLightSelected();
+			if (selectedLight2 > 0) {
+				System.out.println("Copying light settings");
+				System.out.println("First light selected:" + selectedLights.get(0));
+				System.out.println("Second light selected: " + selectedLight2);
+				light.alertLight(selectedLight2);
+				switchState(State.IDLE);
+				this.jsonStateBefore = light.getJsonState();
+				String state1 = light.getJsonState(this.selectedLights.get(0));
+				light.setJsonState(selectedLight2, state1);
+				prevSelectedLights = this.selectedLights;
+				selectedLights=new ArrayList<Integer>();
+			} else {
+				System.out.println("no light selected");
+			}
+		}
+	}
+
+	public void onCorrectionTrigger() {
+		if(State.WAITING_FOR_COMMAND==state) {
+			//TODO
 		}
 	}
 }
