@@ -67,6 +67,7 @@ public class SpeechUnit implements Runnable {
 			long lastStateChange = getCurrentMillis();
 			while (true) {
 				if(shouldSwitchToIdle(lastStateChange)){
+					System.out.println("After " + STATE_TIMEOUT + " milliseconds of no command, we switch back to Idle state.");
 					this.state = State.IDLE;
 				}
 				SpeechResult result = recognizer.getResult();
