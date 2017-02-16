@@ -4,8 +4,14 @@ import java.util.ArrayList;
 
 public class LightUnit {
 
-	private boolean hueActivated = false;
+	private boolean hueActivated;
+	public void setHueActivation(boolean activation) {
+		if(activation) {hueActivated = true;}
+		else{hueActivated = false;}
+	}
 	private HueControl hue;
+	
+	
 
 	public LightUnit() {
 		String username = "3FCBC5219152E94C7B998679E5FCCA15";

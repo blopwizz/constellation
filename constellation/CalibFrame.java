@@ -1,8 +1,7 @@
 package constellation;
 
 import java.awt.Frame;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import SimpleOpenNI.SimpleOpenNI;
 import java.awt.BorderLayout;
 import java.util.HashMap;
