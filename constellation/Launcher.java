@@ -53,7 +53,7 @@ public class Launcher extends PApplet {
 
 
 	private SpeechUnit voice;
-	private LightUnit light;
+	private LightUnit lightUnit;
 	private Command command;
 	private State state = State.IDLE;
 	private boolean shouldStop = false;
@@ -152,7 +152,6 @@ public class Launcher extends PApplet {
 		//draw light calibration points
 		drawLightsPoints();
 	
-		
 		//interaction states
 		switch (this.state) {
 		case IDLE:
@@ -160,8 +159,8 @@ public class Launcher extends PApplet {
 		case WAITING_FOR_COMMAND:
 			break;
 		case INSTRUCTED:
-			this.jsonStateBefore = light.getJsonState();
-			light.performAction(this.selectedLights, this.command);
+			this.jsonStateBefore = lightUnit.getJsonState();
+			lightUnit.performAction(this.selectedLights, this.command);
 			switchState(State.IDLE);
 			this.prevSelectedLights = this.selectedLights;
 			this.selectedLights = new ArrayList<Integer>();
@@ -195,7 +194,7 @@ public class Launcher extends PApplet {
 			if (selectedLight > 0) {
 				System.out.println("Last light selected: " + selectedLight);
 				this.selectedLights.add(selectedLight);
-				light.alertLight(selectedLight);
+				lightUnit.alertLight(selectedLight);
 				switchState(State.WAITING_FOR_COMMAND);
 				return true;
 			} else {
@@ -222,24 +221,23 @@ public class Launcher extends PApplet {
 		if (activateSpeech) {
 			(new Thread(this.voice)).start();
 		}
-		
 
 		this.prevSelectedLights = new ArrayList<Integer>();
 		this.selectedLights = new ArrayList<Integer>();
-		light = new LightUnit();
+		lightUnit = new LightUnit();
 	}
 
 	public void onAllSelectionTrigger() {
 		for (int i = 1; i < 10; i++) {
 			selectedLights.add(i);
-			light.alertLight(i);
+			lightUnit.alertLight(i);
 		}
 		switchState(State.WAITING_FOR_COMMAND);
 	}
 
 	public void undoLast() {
 		System.out.println("Reverting last change.");
-		light.setJsonState(jsonStateBefore);
+		lightUnit.setJsonState(jsonStateBefore);
 	}
 
 	public void onCopyTrigger() {
@@ -247,7 +245,7 @@ public class Launcher extends PApplet {
 			if (selectedLight > 0) {
 				System.out.println("Last light selected: " + selectedLight);
 				this.selectedLights.add(selectedLight);
-				light.alertLight(selectedLight);
+				lightUnit.alertLight(selectedLight);
 				switchState(State.COPY_WAITING);
 			} else {
 				System.out.println("no light selected");
@@ -262,11 +260,11 @@ public class Launcher extends PApplet {
 			System.out.println("Copying light settings");
 			System.out.println("First light selected:" + selectedLights.get(0));
 			System.out.println("Second light selected: " + selectedLight2);
-			light.alertLight(selectedLight2);
+			lightUnit.alertLight(selectedLight2);
 			switchState(State.IDLE);
-			this.jsonStateBefore = light.getJsonState();
-			String state1 = light.getJsonState(this.selectedLights.get(0));
-			light.setJsonState(selectedLight2, state1);
+			this.jsonStateBefore = lightUnit.getJsonState();
+			String state1 = lightUnit.getJsonState(this.selectedLights.get(0));
+			lightUnit.setJsonState(selectedLight2, state1);
 			prevSelectedLights = this.selectedLights;
 			selectedLights=new ArrayList<Integer>();
 		} else {
@@ -282,11 +280,11 @@ public class Launcher extends PApplet {
 			System.out.println("Copying light settings");
 			System.out.println("First light selected:" + selectedLights.get(0));
 			System.out.println("Second light selected: " + selectedLight2);
-			light.alertLight(selectedLight2);
+			lightUnit.alertLight(selectedLight2);
 			switchState(State.IDLE);
-			this.jsonStateBefore = light.getJsonState();
-			String state1 = light.getJsonState(this.selectedLights.get(0));
-			light.setJsonState(selectedLight2, state1);
+			this.jsonStateBefore = lightUnit.getJsonState();
+			String state1 = lightUnit.getJsonState(this.selectedLights.get(0));
+			lightUnit.setJsonState(selectedLight2, state1);
 			prevSelectedLights = this.selectedLights;
 			selectedLights=new ArrayList<Integer>();
 		} else {
