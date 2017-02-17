@@ -8,6 +8,7 @@ import java.io.IOException;
 
 public class SpeechUnit implements Runnable {
 
+	private static final long STATE_TIMEOUT = 30 * 1000;
 	private final Launcher main;
 	private State state;
 
@@ -22,18 +23,21 @@ public class SpeechUnit implements Runnable {
 	private final static String[] ALL_LIGHTS_SELECTER = { "switch all", "make all", "turn all", "selecct all" };
 	private final static String COPY_STRING = "copy";
 	private final static String[] COPY_FINISH = { "there" };
+	private final static String[] COPY_ADDITIONAL = { "and there" };
 	private final static String[] UNDO_STRINGS = { "undo", "revert" };
 	private final static String[] CORRECTION_STRINGS = { "no that", "no this" };
 	private final static String[] ADD_STRING = { "and that", "and this" };
 
+	private boolean lastActionCopy = false;
+	
 	private enum State {
 		IDLE, ACTIVATED, LIGHT_CHOSEN, COPY_CHOSEN;
 	}
 
 	public enum Command {
 		BLUE("blue"), RED("red"), GREEN("green"), YELLOW("yellow"), WHITE("white"), PURPLE("purple"), ON("on"), OFF(
-				"off"), BRIGHTER("brighter"), LIGHTER(
-						"lighter"), ADD("and that"), RANDOM("random"), UNDEFINED_COMMAND("undefined");
+				"off"), BRIGHTER("brighter"), DARKER(
+						"darker"), ADD("and that"), RANDOM("random"), UNDEFINED_COMMAND("undefined");
 
 		private final String word;
 
@@ -60,45 +64,66 @@ public class SpeechUnit implements Runnable {
 			LiveSpeechRecognizer recognizer = new LiveSpeechRecognizer(configuration);
 			recognizer.startRecognition(true);
 			System.out.println("Done");
+			long lastStateChange = getCurrentMillis();
 			while (true) {
+				if(shouldSwitchToIdle(lastStateChange)){
+					System.out.println("After " + STATE_TIMEOUT + " milliseconds of no command, we switch back to Idle state.");
+					onClose();
+				}
 				SpeechResult result = recognizer.getResult();
 				System.out.println(result.getHypothesis());
 				switch (state) {
 				case IDLE:
 					if (isActivation(result)) {
-						this.state = State.ACTIVATED;
+						lastActionCopy = false;
+						switchState(State.ACTIVATED);
 					}
 					break;
 				case ACTIVATED:
 					if (isSingleLightSelection(result)) {
+						lastActionCopy = false;
 						if (onSelectionTrigger())
 							this.state = State.LIGHT_CHOSEN;
 					} else if (isAllLightSelection(result)) {
+						lastActionCopy = false;
 						this.state = State.LIGHT_CHOSEN;
 						onAllSelectionTrigger();
 					} else if (isUndo(result)) {
-						this.state = State.ACTIVATED;
+						lastActionCopy = false;
+						switchState(State.ACTIVATED);
 						onUndoTrigger();
 					} else if (isCopy(result)) {
+						lastActionCopy = false;
 						this.state = State.COPY_CHOSEN;
 						onCopyTrigger();
+					} else if (lastActionCopy && isCopyAdditional(result)) {
+						onCopyAgain();
 					}
 					break;
 				case LIGHT_CHOSEN:
+					lastActionCopy = false;
+					if (isAdd(result)) {
+						onSelectionTrigger();
+						break;
+					} else if (isCorrection(result)) {
+						onCorrectionTrigger();
+						break;
+					}
 					Command returnCommand = getCommand(result);
 					if (Command.UNDEFINED_COMMAND != returnCommand) {
 						if (returnCommand == Command.ADD) {
 							onSelectionTrigger();
 						} else {
 							onCommand(returnCommand);
-							this.state = State.ACTIVATED;
+							switchState(State.ACTIVATED);
 						}
 					}
 					break;
 				case COPY_CHOSEN:
 					if (isCopyFinish(result)) {
-						main.onCopy2Trigger();
-						this.state = State.ACTIVATED;
+						onPasteTrigger();
+						switchState(State.ACTIVATED);
+						lastActionCopy = true;
 					}
 				}
 
@@ -113,9 +138,28 @@ public class SpeechUnit implements Runnable {
 			e.printStackTrace();
 		}
 		System.out.println("SpeechUnit closed");
-
 	}
 
+	private boolean shouldSwitchToIdle(long lastStateChange) {
+		return STATE_TIMEOUT < (getCurrentMillis() - lastStateChange);
+	}
+
+	private long getCurrentMillis(){
+		return Math.round(System.nanoTime()/10 ^ 6);
+	}
+
+	private void onCorrectionTrigger() {
+		main.onCorrectionTrigger();		
+	}
+
+	private void onCopyAgain() {
+		main.onCopyAgain();	
+	}
+
+	private void onPasteTrigger() {
+		main.onPasteTrigger();
+	}
+	
 	public void onCopyTrigger() {
 		main.onCopyTrigger();
 	}
@@ -132,6 +176,11 @@ public class SpeechUnit implements Runnable {
 			}
 		}
 		return Command.UNDEFINED_COMMAND;
+	}
+	
+	private void switchState(SpeechUnit.State state){
+		System.out.println("SpeechUnit: switching to State" +  state.name());
+		this.state = state;
 	}
 
 	private boolean isSingleLightSelection(SpeechResult result) {
@@ -166,6 +215,11 @@ public class SpeechUnit implements Runnable {
 	private boolean isCopyFinish(SpeechResult result) {
 		String hypothesis = result.getHypothesis();
 		return stringContainsArrayEntry(hypothesis, COPY_FINISH);
+	}
+	
+	private boolean isCopyAdditional(SpeechResult result) {
+		String hypothesis = result.getHypothesis();
+		return stringContainsArrayEntry(hypothesis, COPY_ADDITIONAL);
 	}
 
 	private boolean isCorrection(SpeechResult result) {
@@ -204,12 +258,12 @@ public class SpeechUnit implements Runnable {
 
 	private void onClose() {
 		System.out.println("Received close. Aborting command.");
-		this.state = State.IDLE;
+		switchState(State.IDLE);
 		main.onClose();
 	}
 
 	public SpeechUnit(Launcher main) {
-		this.state = State.IDLE;
+		switchState(State.IDLE);
 		this.main = main;
 	}
 

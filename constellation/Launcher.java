@@ -10,11 +10,18 @@
 *   - Simple Open NI is installed
 *	- the camera is connected
 *	to the computer via a USB 2.0 port
-*	- run this program as a Java Applet
+*	- run this program as a Java Application
 *   
 *   Refer to Constellation Setup Guide
 *   https://docs.google.com/document/d/1HpO8hGLaa7HpF74TBYGDHB-de1lfbYJK24u8smRUuSE
+<<<<<<< HEAD
 
+=======
+*
+*------------------------------------------------------
+*[TO DO]
+* - fix the calibration mode to do it several times if needed
+>>>>>>> master
 * ------------------------------------------------------
 * 
 * Coder: Jorg, Frederic, Stephane
@@ -23,10 +30,11 @@
 */
 
 package constellation;
+import java.io.File;
+
+import java.util.HashMap;
 
 import SimpleOpenNI.SimpleOpenNI;
-
-import java.io.File;
 import java.util.ArrayList;
 import constellation.SpeechUnit.Command;
 import processing.core.*;
@@ -35,11 +43,15 @@ import processing.data.TableRow;
 import controlP5.*;
 
 public class Launcher extends PApplet {
+
 	public static void main(String[] args) {
 		PApplet.main("constellation.Launcher");
 	}
 	private ControlP5 cp5;
 	public static SimpleOpenNI camera;
+
+
+
 	private SpeechUnit voice;
 	private LightUnit light;
 	private Command command;
@@ -56,7 +68,9 @@ public class Launcher extends PApplet {
 	private String jsonStateBefore = ""; // for undo
 	private ArrayList<Integer> prevSelectedLights;
 	private ArrayList<Integer> selectedLights;
+
 	float sphereRadius = 400;
+
 
 	private enum State {
 		IDLE, WAITING_FOR_COMMAND, INSTRUCTED, COPY_WAITING;
@@ -204,6 +218,7 @@ public class Launcher extends PApplet {
 
 	private void initialize() {
 		(new Thread(this.voice)).start();
+
 		this.prevSelectedLights = new ArrayList<Integer>();
 		this.selectedLights = new ArrayList<Integer>();
 		light = new LightUnit();
@@ -218,7 +233,7 @@ public class Launcher extends PApplet {
 	}
 
 	public void undoLast() {
-		System.out.println("undoing last command");
+		System.out.println("Reverting last change.");
 		light.setJsonState(jsonStateBefore);
 	}
 
@@ -235,21 +250,43 @@ public class Launcher extends PApplet {
 		
 	}
 
-	public void onCopy2Trigger() {
-			int selectedLight2 = getLightSelected();
-			if (selectedLight2 > 0) {
-				System.out.println("Copying light settings");
-				System.out.println("First light selected:" + selectedLights.get(0));
-				System.out.println("Second light selected: " + selectedLight2);
-				light.alertLight(selectedLight2);
-				switchState(State.IDLE);
-				String state1 = light.getJsonState(this.selectedLights.get(0));
-				light.setJsonState(selectedLight2, state1);
-			} else {
-				System.out.println("no light selected");
-			}
-		
+
+	public void onPasteTrigger() {
+		int selectedLight2 = getLightSelected();
+		if (selectedLight2 > 0) {
+			System.out.println("Copying light settings");
+			System.out.println("First light selected:" + selectedLights.get(0));
+			System.out.println("Second light selected: " + selectedLight2);
+			light.alertLight(selectedLight2);
+			switchState(State.IDLE);
+			this.jsonStateBefore = light.getJsonState();
+			String state1 = light.getJsonState(this.selectedLights.get(0));
+			light.setJsonState(selectedLight2, state1);
+			prevSelectedLights = this.selectedLights;
+			selectedLights=new ArrayList<Integer>();
+		} else {
+			System.out.println("no light selected");
+		}
 	}
+
+	public void onCopyAgain() {
+		this.selectedLights = prevSelectedLights;
+
+		int selectedLight2 = getLightSelected();
+		if (selectedLight2 > 0) {
+			System.out.println("Copying light settings");
+			System.out.println("First light selected:" + selectedLights.get(0));
+			System.out.println("Second light selected: " + selectedLight2);
+			light.alertLight(selectedLight2);
+			switchState(State.IDLE);
+			this.jsonStateBefore = light.getJsonState();
+			String state1 = light.getJsonState(this.selectedLights.get(0));
+			light.setJsonState(selectedLight2, state1);
+			prevSelectedLights = this.selectedLights;
+			selectedLights=new ArrayList<Integer>();
+		} else {
+			System.out.println("no light selected");		
+	}}
 	
 
 	public void mousePressed() {
@@ -355,5 +392,11 @@ public class Launcher extends PApplet {
 	
 	public int getLightSelected() {
 		return lightSelected;
+	}
+
+	public void onCorrectionTrigger() {
+		if(State.WAITING_FOR_COMMAND==state) {
+
+		}
 	}
 }

@@ -6,13 +6,20 @@ public class LightUnit {
 
 	private boolean hueActivated = false;
 	private HueControl hue;
+	
+	
 
 	public LightUnit() {
 		String username = "3FCBC5219152E94C7B998679E5FCCA15";
-		String url = "http://10.0.0.3/api/";
+		String url = "http://10.0.0.2/api/";
 
 		hue = new HueControl(username, url);
-		System.out.println("Light Unit initialized");
+		System.out.print("Light Unit initialized ");
+		if (hueActivated) {
+			System.out.println("with Hue");
+		} else {
+			System.out.println("without Hue");
+		}
 	}
 
 	public String getJsonState() {
@@ -66,6 +73,16 @@ public class LightUnit {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	public void changeBrightness(int id, String change) {
+		System.out.println("Adding "+change+" to brightnesslevel.");
+		try {
+			hue.incBri(id, change);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -122,10 +139,10 @@ public class LightUnit {
 						hue.turnLightOff(light.intValue());
 						break;
 					case BRIGHTER:
-						// TODO
+						hue.incBri(light, "+50");
 						break;
-					case LIGHTER:
-						// TODO
+					case DARKER:
+						hue.incBri(light, "-50");
 						break;
 					default:
 						System.out.println("unknown command");

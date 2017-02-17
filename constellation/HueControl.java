@@ -74,6 +74,11 @@ public class HueControl {
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
 
+	public void incBri(int ID, String bri_inc) throws Exception {
+		String payload = "{\"bri_inc\":" + bri_inc + "}";
+		sendPUT(url + username + "/lights/" + ID + "/state", payload);
+	}
+
 	public void colorloopOn(int ID) throws Exception {
 		String payload = "{\"effect\": \"colorloop\"}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);
