@@ -58,7 +58,7 @@ public class Launcher extends PApplet {
 	//private SpeechUnit.Command command;
 	// HELP TO CONTINUE
 	private boolean helpDisplay = false;
-	private int numberLights = 7;
+	private int numberLights;
 	private ArrayList<Light> lights;
 	private Table lightsCoor;
 	private int lightSelected;
@@ -77,7 +77,7 @@ public class Launcher extends PApplet {
 	
 	public void setup() {   //excuted one time before the draw loop (Processing)
 		size(640, 480);     //size of the sketch
-		setupUI();          //UI: controlP5 buttons, text, user parameters
+		setupUI();          //UI: controlP5 buttons, text, user parameters    
 		setupCamera();      //Camera: Xtion pro, SimpleOpenNI
 		initialize();       //start Speech, Light control threads
 	}
@@ -92,8 +92,29 @@ public class Launcher extends PApplet {
 	
 	//---------------------- SETUP FUNCTIONS   ---------------------------------
 	public void setupUI() {
-		//buttons
+
 		cp5 = new ControlP5(this);
+		lightsCoor = loadTable("src/lights_coordinates.csv", "header");
+		numberLights = lightsCoor.getRowCount();
+		int val= numberLights;
+		cp5.addSlider("quantity")
+	     .setPosition(20,height-120)
+	     .setSize(20,100)
+	     .setRange(0,7)
+	     .setNumberOfTickMarks(8)
+	     .setValue(val)
+	     ;
+		lights = new ArrayList<Light>();
+		Iterator<TableRow> it = lightsCoor.rows().iterator();
+		while(it.hasNext() && lights.size() < numberLights) {
+			TableRow row = it.next();
+			lights.add(new Light(row.getInt("number"), 
+					 row.getFloat("x"), 	
+					 row.getFloat("y"), 
+					 row.getFloat("z")));
+		}
+		//buttons
+		
 		cp5.addButton("quit")
 	     .setPosition(20,20)
 	     .setSize(40,19)
@@ -102,18 +123,19 @@ public class Launcher extends PApplet {
 	     .setPosition(70,20)
 	     .setSize(40,19)
 	     ;
-		
+
+	}
+	
+	public void setupLightsPosition(int number) {
 		//saved lights coordinates
-		lightsCoor = loadTable("src/lights_coordinates.csv", "header");
-		numberLights = lightsCoor.getRowCount();
-		println(numberLights);
 		lights = new ArrayList<Light>();
-		for (TableRow row : lightsCoor.rows()) {
-			lights.add(new Light(row.getInt("number"), 
-								 row.getFloat("x"), 	
-								 row.getFloat("y"), 
-								 row.getFloat("z")));
+		for (int k = 0; k< number; k++){
+			lights.add(new Light(k,
+					- 500*cos(TWO_PI*k/7),
+					- 500*sin(TWO_PI*k/7),
+					2000));
 		}
+		numberLights = number;
 	}
 	
 	public void setupCamera() {
@@ -182,7 +204,7 @@ public class Launcher extends PApplet {
 		pushStyle();
 		stroke(255, 255, 255, 150);
 		strokeWeight(5);
-		for (int k = 0; k < numberLights; k++){
+		for (int k = 0; k < lights.size(); k++){
 			PVector coor2d = lights.get(k).getCoor2D();
 			ellipse(coor2d.x, coor2d.y, 10, 10);
 		}
@@ -190,7 +212,7 @@ public class Launcher extends PApplet {
 	}
 	
 	
-	//---------------------------- DATA LIGHTS CALIBRATION ---------------------------
+	//---------------------------- DATA  -----------------------------------
 	
 	public void saveLightsCoor() {
 		lightsCoor.clearRows();
@@ -218,6 +240,10 @@ public class Launcher extends PApplet {
 		System.exit(0);
 	}
 	
+	public void quantity(float number) {  //controlP5 slider
+		setupLightsPosition(floor(number));
+	}
+	
 	public void mouseDragged(){
 		PVector[] realWorldMap = camera.depthMapRealWorld();
 		int index = mouseX + mouseY * camera.depthWidth();
@@ -229,6 +255,14 @@ public class Launcher extends PApplet {
 				light.setCoor(realWorldMap[index]);
 				oneSelected = true;
 			}
+		}
+	}
+	
+	public void mousePressed(){
+		PVector[] realWorldMap = camera.depthMapRealWorld();
+		int index = mouseX + mouseY * camera.depthWidth();
+		if (mouseButton == RIGHT){
+			printArray(realWorldMap[index]);
 		}
 	}
 	
