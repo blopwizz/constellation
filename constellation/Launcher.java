@@ -14,11 +14,7 @@
 *   
 *   Refer to Constellation Setup Guide
 *   https://docs.google.com/document/d/1HpO8hGLaa7HpF74TBYGDHB-de1lfbYJK24u8smRUuSE
-*
-*------------------------------------------------------
-*[TO DO]
-* - fix the calibration mode to do it several times if needed
-* - fix the ray
+
 * ------------------------------------------------------
 * 
 * Coder: Jorg, Frederic, Stephane
@@ -41,7 +37,7 @@ public class Launcher extends PApplet {
 		PApplet.main("constellation.Launcher");
 	}
 	private ControlP5 cp5;
-	private static SimpleOpenNI camera;
+	public static SimpleOpenNI camera;
 	//private SpeechUnit voice;
 	//private LightUnit light;
 	//private Command command;
@@ -165,10 +161,8 @@ public class Launcher extends PApplet {
 		stroke(255, 255, 255, 150);
 		strokeWeight(5);
 		for (int k = 0; k < numberLights; k++){
-			Light light = lights.get(k);
-			PVector tempVec = new PVector();
-			camera.convertRealWorldToProjective(light.getCoor(), tempVec);
-			ellipse(tempVec.x, tempVec.y, 10, 10);
+			PVector coor2d = lights.get(k).getCoor2D();
+			ellipse(coor2d.x, coor2d.y, 10, 10);
 		}
 		popStyle();
 	}
@@ -311,7 +305,7 @@ public class Launcher extends PApplet {
 		line(temp1.x, temp1.y, temp2.x, temp2.y);
 		
 		for (Light light : lights) {
-			if(intersectionLight(jointPos2, dir, light.getCoor(), 0)) {lightSelected = light.getNumber();}
+			if(intersectionLight(jointPos2, dir, light.getCoor3D(), 0)) {lightSelected = light.getNumber();}
 		}
 		
 
@@ -348,12 +342,13 @@ public class Launcher extends PApplet {
 		System.out.println("onLostUser - userId: " + userId);
 	}
 	
+	//---------------------------------------------------------------
 	
-	boolean mouseOver(Light light) {
-		PVector tempVec = new PVector();
-		camera.convertRealWorldToProjective(light.getCoor(), tempVec);
-		float disX = tempVec.x - mouseX;
-		float disY = tempVec.y - mouseY;
+	
+	public boolean mouseOver(Light light) {
+		PVector coor2d = light.getCoor2D();
+		float disX = coor2d.x - mouseX;
+		float disY = coor2d.y - mouseY;
 		if (disX*disX + disY*disY < Light.RADIUS*Light.RADIUS/4)  {
 			return true;
 		} 
