@@ -52,7 +52,7 @@ public class Launcher extends PApplet {
 	private boolean helpDisplay = false;
 	private int numberLights = 7;
 	private int editLight = 1;
-	private PVector[] lightsVectors;
+	private ArrayList<Light> lights;
 	private PVector[] tempVectors;
 	private Table lightsCoor;
 	private int lightSelected;
@@ -103,25 +103,24 @@ public class Launcher extends PApplet {
 		lightsCoor = loadTable("data/lights_coordinates.csv", "header");
 		numberLights = lightsCoor.getRowCount();
 		println(numberLights);
-		lightsVectors = new PVector[numberLights];
-		int k = 0;
+		lights = new ArrayList<Light>();
 		for (TableRow row : lightsCoor.rows()) {
-			lightsVectors[k] = new PVector (row.getFloat("x"), row.getFloat("y"), row.getFloat("z"));
-			k++;
+			lights.add(new Light(row.getFloat("x"), row.getFloat("y"), row.getFloat("z")));
 		}
-		tempVectors = new PVector[numberLights];
-		for (int k1 = 0; k1 < numberLights; k1++){
-			tempVectors[k1] = new PVector();
-		}
+//		tempVectors = new PVector[numberLights];
+//		for (int k1 = 0; k1 < numberLights; k1++){
+//			tempVectors[k1] = new PVector();
+//		}
 	}
 	
 	public void saveLightsCoor() {
 		for (int k = 0; k < numberLights; k++){
 			TableRow newRow = lightsCoor.addRow();
 			newRow.setInt("number", k);
-			newRow.setFloat("x", lightsVectors[k].x);
-			newRow.setFloat("y", lightsVectors[k].y);
-			newRow.setFloat("z", lightsVectors[k].z);
+			Light light = lights.get(k);
+			newRow.setFloat("x", light.getX());
+			newRow.setFloat("y", light.getY());
+			newRow.setFloat("z", light.getZ());
 		}
 		saveTable(lightsCoor, "data/lights_coordinates.csv");
 	}
@@ -170,8 +169,9 @@ public class Launcher extends PApplet {
 		pushStyle();
 		stroke(255, 255, 255, 150);
 		strokeWeight(5);
-		for (int k = 0; k< numberLights; k++){
-			camera.convertRealWorldToProjective(lightsVectors[k], tempVectors[k]);
+		for (int k = 0; k < numberLights; k++){
+			Light light = lights.get(k);
+			camera.convertRealWorldToProjective(light.getCoor(), tempVectors[k]);
 			ellipse(tempVectors[k].x, tempVectors[k].y, 10, 10);
 		}
 		popStyle();
@@ -264,7 +264,7 @@ public class Launcher extends PApplet {
 		PVector[]  realWorldMap = camera.depthMapRealWorld();
 		int index = mouseX + mouseY * camera.depthWidth();
 		if (mouseButton == LEFT) {
-			lightsVectors[editLight].set(realWorldMap[index]);
+			//lightsVectors[editLight].set(realWorldMap[index]);
 		} else {
 			System.out.println("Point3d: " + realWorldMap[index].x + "," + realWorldMap[index].y + ","
 					+ realWorldMap[index].z);
@@ -275,7 +275,7 @@ public class Launcher extends PApplet {
 		if (mouseButton == LEFT) {
 			PVector[] realWorldMap = camera.depthMapRealWorld();
 			int index = mouseX + mouseY * camera.depthWidth();
-			lightsVectors[editLight].set(realWorldMap[index]);
+			//lightsVectors[editLight].set(realWorldMap[index]);
 		}
 	}
 	
