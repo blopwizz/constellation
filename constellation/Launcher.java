@@ -41,7 +41,7 @@ public class Launcher extends PApplet {
 		PApplet.main("constellation.Launcher");
 	}
 	private ControlP5 cp5;
-	private SimpleOpenNI camera;
+	private static SimpleOpenNI camera;
 	//private SpeechUnit voice;
 	//private LightUnit light;
 	//private Command command;
@@ -51,7 +51,6 @@ public class Launcher extends PApplet {
 	// HELP TO CONTINUE
 	private boolean helpDisplay = false;
 	private int numberLights = 7;
-	private int editLight = 1;
 	private ArrayList<Light> lights;
 	private Table lightsCoor;
 	private int lightSelected;
@@ -102,7 +101,10 @@ public class Launcher extends PApplet {
 		println(numberLights);
 		lights = new ArrayList<Light>();
 		for (TableRow row : lightsCoor.rows()) {
-			lights.add(new Light(row.getFloat("x"), row.getFloat("y"), row.getFloat("z")));
+			lights.add(new Light(row.getInt("number"), 
+								 row.getFloat("x"), 	
+								 row.getFloat("y"), 
+								 row.getFloat("z")));
 		}
 	}
 	
@@ -257,6 +259,11 @@ public class Launcher extends PApplet {
 	public void mousePressed() {
 		PVector[]  realWorldMap = camera.depthMapRealWorld();
 		int index = mouseX + mouseY * camera.depthWidth();
+		for (Light light : lights){
+			if (mouseOver(light)) {
+				light.setCoor(realWorldMap[index]);
+			}
+		}
 		if (mouseButton == LEFT) {
 			//lightsVectors[editLight].set(realWorldMap[index]);
 		} else {
@@ -266,22 +273,18 @@ public class Launcher extends PApplet {
 	}
 	
 	public void mouseDragged(){
-		if (mouseButton == LEFT) {
-			PVector[] realWorldMap = camera.depthMapRealWorld();
-			int index = mouseX + mouseY * camera.depthWidth();
-			//lightsVectors[editLight].set(realWorldMap[index]);
+		PVector[] realWorldMap = camera.depthMapRealWorld();
+		int index = mouseX + mouseY * camera.depthWidth();
+		for (Light light : lights){
+			if (mouseOver(light)) {
+				light.setCoor(realWorldMap[index]);
+			}
 		}
 	}
 	
 	public void keyPressed() {
 		switch(key) {
 		case 'h' : helpDisplay = true;
-		case '1' : editLight = 1;
-		case '2' : editLight = 2;
-		case '3' : editLight = 3;
-		case '4' : editLight = 4;
-		case '5' : editLight = 5;
-		case '6' : editLight = 6;
 		}
 	}
 	
@@ -338,5 +341,25 @@ public class Launcher extends PApplet {
 
 	public void onLostUser(SimpleOpenNI curContext, int userId) {
 		System.out.println("onLostUser - userId: " + userId);
+	}
+	
+	
+//	public static PVector proj(PVector p3D){
+//		PVector p2D = new PVector();
+//		camera.convertRealWorldToProjective(p3D, p2D);
+//		return p2D;
+//	}
+	
+	boolean mouseOver(Light light) {
+		PVector tempVec = new PVector();
+		camera.convertRealWorldToProjective(light.getCoor(), tempVec);
+		float disX = tempVec.x - mouseX;
+		float disY = tempVec.y - mouseY;
+		if (disX*disX + disY*disY < Light.RADIUS*Light.RADIUS/4)  {
+			return true;
+		} 
+		else {
+				return false;
+		}
 	}
 }
