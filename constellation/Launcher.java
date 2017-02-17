@@ -96,7 +96,7 @@ public class Launcher extends PApplet {
 		cp5 = new ControlP5(this);
 		lightsCoor = loadTable("src/lights_coordinates.csv", "header");
 		numberLights = lightsCoor.getRowCount();
-		int val= numberLights;
+		int val= numberLights; //need  "fresh" int to avoid side effects
 		cp5.addSlider("quantity")
 	     .setPosition(20,height-120)
 	     .setSize(20,100)
@@ -131,8 +131,8 @@ public class Launcher extends PApplet {
 		lights = new ArrayList<Light>();
 		for (int k = 0; k< number; k++){
 			lights.add(new Light(k,
-					- 500*cos(TWO_PI*k/7),
-					- 500*sin(TWO_PI*k/7),
+					- 200*cos(TWO_PI*k/7),
+					500 - 200*sin(TWO_PI*k/7),
 					2000));
 		}
 		numberLights = number;
@@ -201,14 +201,18 @@ public class Launcher extends PApplet {
 	}
 	
 	public void drawLightsPoints() {
-		pushStyle();
-		stroke(255, 255, 255, 150);
-		strokeWeight(5);
+		
 		for (int k = 0; k < lights.size(); k++){
 			PVector coor2d = lights.get(k).getCoor2D();
-			ellipse(coor2d.x, coor2d.y, 10, 10);
+			pushStyle();
+			stroke(255, 255, 255, 150);
+			strokeWeight(5);
+			ellipse(coor2d.x, coor2d.y, 20, 20);
+			fill(0);
+			text(k, coor2d.x-5, coor2d.y+4);
+			popStyle();
 		}
-		popStyle();
+		
 	}
 	
 	
@@ -252,6 +256,8 @@ public class Launcher extends PApplet {
 		while(it.hasNext() && !oneSelected){
 			Light light = it.next();
 			if (mouseOver(light)) {
+				PVector currCoor = light.getCoor3D();
+				PVector newCoor = realWorldMap[index];
 				light.setCoor(realWorldMap[index]);
 				oneSelected = true;
 			}
