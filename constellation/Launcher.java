@@ -47,7 +47,10 @@ public class Launcher extends PApplet {
 	//private SpeechUnit.Command command;
 	// HELP TO CONTINUE
 	private boolean helpDisplay = false;
-	private int numberLights = 3;
+	private int numberLights = 7;
+	private int editLight = 1;
+	private PVector[] lightsVectors = new PVector[numberLights];
+	private PVector[] tempVectors = new PVector[numberLights];
 	private int lightSelected;
 	private int[] lightsInUse = {4,5,6};
 	private String jsonStateBefore = ""; // for undo
@@ -75,6 +78,21 @@ public class Launcher extends PApplet {
 		camera.enableUser();
 		camera.alternativeViewPointDepthToImage();
 		initialize();
+		
+		lightsVectors[0] = new PVector  (-2197.7861f,  640.2997f, 9870.0f);
+		lightsVectors[1] = new PVector (-1751.3065f,  1342.899f, 3948.0f);
+		lightsVectors[2] = new PVector ( 2718.128f, 1205.9951f, 5291.0f);
+		lightsVectors[3] = new PVector   (2630.421f, 224.97023f, 9870.0f);
+		lightsVectors[4] = new PVector    (-1260.5065f, 441.17722f, 3994.0f);
+		lightsVectors[5] = new PVector     (1033.5884f, 498.20435f, 4241.0f);
+		lightsVectors[6] = new PVector     (-136.5742f, 1012.2554f, 4582.0f);
+		tempVectors[0] = new PVector   (640.2997f, 9870.0f);
+		tempVectors[1] = new PVector   (1342.899f, 3948.0f);
+		tempVectors[2] = new PVector   (1205.9951f, 5291.0f);
+		tempVectors[3] = new PVector   (224.97023f, 9870.0f);
+		tempVectors[4] = new PVector   (441.17722f, 3994.0f);
+		tempVectors[5] = new PVector   (498.20435f, 4241.0f);
+		tempVectors[6] = new PVector   (1012.2554f, 4582.0f);
 	}
 
 	public void draw() {
@@ -89,13 +107,8 @@ public class Launcher extends PApplet {
 			}
 		}
 		
-		//draw te calibration points
-		pushStyle();
-		stroke(255, 255, 255, 150);
-		strokeWeight(5);
-		camera.convertRealWorldToProjective(light1, temp1);
-		ellipse(temp1.x, temp1.y, 10, 10);
-		popStyle();
+		drawLightsPoints();
+	
 		
 		//interaction states
 		switch (this.state) {
@@ -115,6 +128,17 @@ public class Launcher extends PApplet {
 		default:
 			break;
 		}
+	}
+	
+	public void drawLightsPoints() {
+		pushStyle();
+		stroke(255, 255, 255, 150);
+		strokeWeight(5);
+		for (int k = 0; k< numberLights; k++){
+			camera.convertRealWorldToProjective(lightsVectors[k], tempVectors[k]);
+			ellipse(tempVectors[k].x, tempVectors[k].y, 10, 10);
+		}
+		popStyle();
 	}
 
 
@@ -201,13 +225,11 @@ public class Launcher extends PApplet {
 	
 
 	public void mousePressed() {
+		PVector[]  realWorldMap = camera.depthMapRealWorld();
+		int index = mouseX + mouseY * camera.depthWidth();
 		if (mouseButton == LEFT) {
-			PVector[]  realWorldMap = camera.depthMapRealWorld();
-			int index = mouseX + mouseY * camera.depthWidth();
-			light1.set(realWorldMap[index]);
+			lightsVectors[editLight].set(realWorldMap[index]);
 		} else {
-			PVector[] realWorldMap = camera.depthMapRealWorld();
-			int index = mouseX + mouseY * camera.depthWidth();
 			System.out.println("Point3d: " + realWorldMap[index].x + "," + realWorldMap[index].y + ","
 					+ realWorldMap[index].z);
 		}
@@ -217,31 +239,19 @@ public class Launcher extends PApplet {
 		if (mouseButton == LEFT) {
 			PVector[] realWorldMap = camera.depthMapRealWorld();
 			int index = mouseX + mouseY * camera.depthWidth();
-			light1.set(realWorldMap[index]);		
-			}
+			lightsVectors[editLight].set(realWorldMap[index]);
+		}
 	}
 	
 	public void keyPressed() {
-		if (key == 'h') {
-			helpDisplay = true;
-		}
-		else if(key == '1') {
-			numberLights = 1;
-		}
-		else if(key == '2') {
-			numberLights = 2;
-		}
-		else if(key == '3') {
-			numberLights = 3;
-		}
-		else if(key == '4') {
-			numberLights = 4;
-		}
-		else if(key == '5') {
-			numberLights = 5;
-		}
-		else if(key == '6') {
-			numberLights = 6;
+		switch(key) {
+		case 'h' : helpDisplay = true;
+		case '1' : editLight = 1;
+		case '2' : editLight = 2;
+		case '3' : editLight = 3;
+		case '4' : editLight = 4;
+		case '5' : editLight = 5;
+		case '6' : editLight = 6;
 		}
 	}
 	
