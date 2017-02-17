@@ -49,7 +49,7 @@ public class Launcher extends PApplet {
 	}
 	private ControlP5 cp5;
 	public static SimpleOpenNI camera;
-
+	private boolean activateSpeech = false;
 
 
 	private SpeechUnit voice;
@@ -149,6 +149,7 @@ public class Launcher extends PApplet {
 			}
 		}
 		
+		//draw light calibration points
 		drawLightsPoints();
 	
 		
@@ -174,6 +175,7 @@ public class Launcher extends PApplet {
 	
 	public void quit(int v) {
 		saveLightsCoor();
+		System.exit(0);
 	}
 	
 	public void drawLightsPoints() {
@@ -217,7 +219,10 @@ public class Launcher extends PApplet {
 	}
 
 	private void initialize() {
-		(new Thread(this.voice)).start();
+		if (activateSpeech) {
+			(new Thread(this.voice)).start();
+		}
+		
 
 		this.prevSelectedLights = new ArrayList<Integer>();
 		this.selectedLights = new ArrayList<Integer>();
