@@ -108,7 +108,7 @@ public class Launcher extends PApplet {
 	     ;
 		
 		//saved lights coordinates
-		lightsCoor = loadTable("data/lights_coordinates.csv", "header");
+		lightsCoor = loadTable("src/lights_coordinates.csv", "header");
 		numberLights = lightsCoor.getRowCount();
 		println(numberLights);
 		lights = new ArrayList<Light>();
@@ -121,6 +121,7 @@ public class Launcher extends PApplet {
 	}
 	
 	public void saveLightsCoor() {
+		lightsCoor.clearRows();
 		for (int k = 0; k < numberLights; k++){
 			TableRow newRow = lightsCoor.addRow();
 			newRow.setInt("number", k);
@@ -129,12 +130,12 @@ public class Launcher extends PApplet {
 			newRow.setFloat("y", light.getY());
 			newRow.setFloat("z", light.getZ());
 		}
-		String fileName = dataPath("data/lights_coordinates.csv");
+		String fileName = dataPath("src/lights_coordinates.csv");
 		File f = new File(fileName);
 		if (f.exists()) {
 		    f.delete();
 		  }
-		saveTable(lightsCoor, "data/lights_coordinates.csv");
+		saveTable(lightsCoor, "src/lights_coordinates.csv");
 	}
 
 	public void draw() {
@@ -172,7 +173,7 @@ public class Launcher extends PApplet {
 		}
 	}
 	
-	public void quit(int v) {
+	public void quit() {
 		saveLightsCoor();
 		System.exit(0);
 	}
