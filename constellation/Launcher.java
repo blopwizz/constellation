@@ -309,22 +309,27 @@ public class Launcher extends PApplet {
 		camera.convertRealWorldToProjective(jointPos2, temp1);
 		camera.convertRealWorldToProjective(rayEnd, temp2);
 		line(temp1.x, temp1.y, temp2.x, temp2.y);
-
-		//if(intersectionLight(jointPos2, dir, light1, 0)) {lightSelected = lightsInUse[0];}
+		
+		for (Light light : lights) {
+			if(intersectionLight(jointPos2, dir, light.getCoor(), 0)) {lightSelected = light.getNumber();}
+		}
+		
 
 		popStyle();
 	}
 
 	// test for intersections
-	public boolean intersectionLight(PVector joint, PVector direction, PVector light, int c) {
+	public boolean intersectionLight(PVector joint, PVector direction, PVector lightCoor, int c) {
 		PVector hit1 = new PVector();
 		PVector hit2 = new PVector();
 		// raySphereIntersection: origin, direction, a sphere target with radius
 		// Output: two vector of intersection with the sphere  ->( )->
-		int intersectionSphere = SimpleOpenNI.raySphereIntersection(joint, direction, light, sphereRadius, hit1,
+		int intersectionSphere = SimpleOpenNI.raySphereIntersection(joint, direction, lightCoor, sphereRadius, hit1,
 				hit2);
 		if (intersectionSphere > 0) {
-			//ellipse(temp1.x, temp1.y, 50, 50);
+			PVector temp = new PVector();
+			camera.convertRealWorldToProjective(lightCoor, temp);
+			ellipse(temp.x, temp.y, 50, 50);
 			return true;
 		}
 		else {return false;}
@@ -343,12 +348,6 @@ public class Launcher extends PApplet {
 		System.out.println("onLostUser - userId: " + userId);
 	}
 	
-	
-//	public static PVector proj(PVector p3D){
-//		PVector p2D = new PVector();
-//		camera.convertRealWorldToProjective(p3D, p2D);
-//		return p2D;
-//	}
 	
 	boolean mouseOver(Light light) {
 		PVector tempVec = new PVector();
