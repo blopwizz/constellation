@@ -32,6 +32,8 @@ import SimpleOpenNI.SimpleOpenNI;
 import java.util.ArrayList;
 //import constellation.SpeechUnit.Command;
 import processing.core.*;
+import processing.data.Table;
+import processing.data.TableRow;
 import controlP5.*;
 
 public class Launcher extends PApplet {
@@ -50,8 +52,9 @@ public class Launcher extends PApplet {
 	private boolean helpDisplay = false;
 	private int numberLights = 7;
 	private int editLight = 1;
-	private PVector[] lightsVectors = new PVector[numberLights];
-	private PVector[] tempVectors = new PVector[numberLights];
+	private PVector[] lightsVectors;
+	private PVector[] tempVectors;
+	private Table lightsCoor;
 	private int lightSelected;
 	private int[] lightsInUse = {4,5,6};
 	private String jsonStateBefore = ""; // for undo
@@ -65,19 +68,10 @@ public class Launcher extends PApplet {
 		IDLE, WAITING_FOR_COMMAND, INSTRUCTED, COPY_WAITING;
 	}
 
+	
 	public void setup() {
 		size(640, 480);
-		cp5 = new ControlP5(this);
-		cp5.addButton("QUIT")
-	     .setValue(0)
-	     .setPosition(20,20)
-	     .setSize(40,19)
-	     ;
-		cp5.addButton("HELP")
-	     .setValue(0)
-	     .setPosition(70,20)
-	     .setSize(40,19)
-	     ;
+		setupUI();
 		//voice = new SpeechUnit(this);
 		camera = new SimpleOpenNI(this);
 		camera.setMirror(true);
@@ -90,21 +84,46 @@ public class Launcher extends PApplet {
 		camera.enableUser();
 		camera.alternativeViewPointDepthToImage();
 		initialize();
+	}
+	
+	
+	public void setupUI() {
+		//buttons
+		cp5 = new ControlP5(this);
+		cp5.addButton("quit")
+	     .setPosition(20,20)
+	     .setSize(40,19)
+	     ;
+		cp5.addButton("help")
+	     .setPosition(70,20)
+	     .setSize(40,19)
+	     ;
 		
-		lightsVectors[0] = new PVector  (-2197.7861f,  640.2997f, 9870.0f);
-		lightsVectors[1] = new PVector (-1751.3065f,  1342.899f, 3948.0f);
-		lightsVectors[2] = new PVector ( 2718.128f, 1205.9951f, 5291.0f);
-		lightsVectors[3] = new PVector   (2630.421f, 224.97023f, 9870.0f);
-		lightsVectors[4] = new PVector    (-1260.5065f, 441.17722f, 3994.0f);
-		lightsVectors[5] = new PVector     (1033.5884f, 498.20435f, 4241.0f);
-		lightsVectors[6] = new PVector     (-136.5742f, 1012.2554f, 4582.0f);
-		tempVectors[0] = new PVector   (640.2997f, 9870.0f);
-		tempVectors[1] = new PVector   (1342.899f, 3948.0f);
-		tempVectors[2] = new PVector   (1205.9951f, 5291.0f);
-		tempVectors[3] = new PVector   (224.97023f, 9870.0f);
-		tempVectors[4] = new PVector   (441.17722f, 3994.0f);
-		tempVectors[5] = new PVector   (498.20435f, 4241.0f);
-		tempVectors[6] = new PVector   (1012.2554f, 4582.0f);
+		//saved lights coordinates
+		lightsCoor = loadTable("data/lights_coordinates.csv", "header");
+		numberLights = lightsCoor.getRowCount();
+		println(numberLights);
+		lightsVectors = new PVector[numberLights];
+		int k = 0;
+		for (TableRow row : lightsCoor.rows()) {
+			lightsVectors[k] = new PVector (row.getFloat("x"), row.getFloat("y"), row.getFloat("z"));
+			k++;
+		}
+		tempVectors = new PVector[numberLights];
+		for (int k1 = 0; k1 < numberLights; k1++){
+			tempVectors[k1] = new PVector();
+		}
+	}
+	
+	public void saveLightsCoor() {
+		for (int k = 0; k < numberLights; k++){
+			TableRow newRow = lightsCoor.addRow();
+			newRow.setInt("number", k);
+			newRow.setFloat("x", lightsVectors[k].x);
+			newRow.setFloat("y", lightsVectors[k].y);
+			newRow.setFloat("z", lightsVectors[k].z);
+		}
+		saveTable(lightsCoor, "data/lights_coordinates.csv");
 	}
 
 	public void draw() {
@@ -140,6 +159,11 @@ public class Launcher extends PApplet {
 		default:
 			break;
 		}
+	}
+	
+	public void quit(int v) {
+		println("ok");
+		saveLightsCoor();
 	}
 	
 	public void drawLightsPoints() {
