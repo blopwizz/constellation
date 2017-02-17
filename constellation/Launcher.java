@@ -25,8 +25,10 @@
 package constellation;
 
 import SimpleOpenNI.SimpleOpenNI;
+
+import java.io.File;
 import java.util.ArrayList;
-//import constellation.SpeechUnit.Command;
+import constellation.SpeechUnit.Command;
 import processing.core.*;
 import processing.data.Table;
 import processing.data.TableRow;
@@ -38,9 +40,9 @@ public class Launcher extends PApplet {
 	}
 	private ControlP5 cp5;
 	public static SimpleOpenNI camera;
-	//private SpeechUnit voice;
-	//private LightUnit light;
-	//private Command command;
+	private SpeechUnit voice;
+	private LightUnit light;
+	private Command command;
 	private State state = State.IDLE;
 	private boolean shouldStop = false;
 	//private SpeechUnit.Command command;
@@ -64,7 +66,7 @@ public class Launcher extends PApplet {
 	public void setup() {
 		size(640, 480);
 		setupUI();
-		//voice = new SpeechUnit(this);
+		voice = new SpeechUnit(this);
 		camera = new SimpleOpenNI(this);
 		camera.setMirror(true);
 		camera.enableDepth();
@@ -113,6 +115,11 @@ public class Launcher extends PApplet {
 			newRow.setFloat("y", light.getY());
 			newRow.setFloat("z", light.getZ());
 		}
+		String fileName = dataPath("data/lights_coordinates.csv");
+		File f = new File(fileName);
+		if (f.exists()) {
+		    f.delete();
+		  }
 		saveTable(lightsCoor, "data/lights_coordinates.csv");
 	}
 
@@ -138,8 +145,8 @@ public class Launcher extends PApplet {
 		case WAITING_FOR_COMMAND:
 			break;
 		case INSTRUCTED:
-			//this.jsonStateBefore = light.getJsonState();
-			//light.performAction(this.selectedLights, this.command);
+			this.jsonStateBefore = light.getJsonState();
+			light.performAction(this.selectedLights, this.command);
 			switchState(State.IDLE);
 			this.prevSelectedLights = this.selectedLights;
 			this.selectedLights = new ArrayList<Integer>();
@@ -152,7 +159,6 @@ public class Launcher extends PApplet {
 	}
 	
 	public void quit(int v) {
-		println("ok");
 		saveLightsCoor();
 	}
 	
@@ -168,30 +174,28 @@ public class Launcher extends PApplet {
 	}
 
 
-//	boolean onSelectionTrigger() {
-//		if (laserWindow != null) {
-//			int selectedLight = laserWindow.getLightSelected();
-//			if (selectedLight > 0) {
-//				System.out.println("Last light selected: " + selectedLight);
-//				this.selectedLights.add(selectedLight);
-//				light.alertLight(selectedLight);
-//				switchState(State.WAITING_FOR_COMMAND);
-//				return true;
-//			} else {
-//				System.out.println("no light selected");
-//			}
-//		}
-//		return false;
-//	}
+	boolean onSelectionTrigger() {
+			int selectedLight = getLightSelected();
+			if (selectedLight > 0) {
+				System.out.println("Last light selected: " + selectedLight);
+				this.selectedLights.add(selectedLight);
+				light.alertLight(selectedLight);
+				switchState(State.WAITING_FOR_COMMAND);
+				return true;
+			} else {
+				System.out.println("no light selected");
+			}
+		return false;
+	}
 
 	void onClose() {
 		switchState(State.IDLE);
 	}
 
-//	void onCommand(SpeechUnit.Command c) {
-//		command = c;
-//		switchState(State.INSTRUCTED);
-//	}
+	void onCommand(SpeechUnit.Command c) {
+		command = c;
+		switchState(State.INSTRUCTED);
+	}
 
 	private void switchState(State state) {
 		System.out.println("Switching state to:" + state);
@@ -199,55 +203,53 @@ public class Launcher extends PApplet {
 	}
 
 	private void initialize() {
-		//(new Thread(this.voice)).start();
+		(new Thread(this.voice)).start();
 		this.prevSelectedLights = new ArrayList<Integer>();
 		this.selectedLights = new ArrayList<Integer>();
-		//light = new LightUnit();
+		light = new LightUnit();
 	}
 
 	public void onAllSelectionTrigger() {
 		for (int i = 1; i < 10; i++) {
 			selectedLights.add(i);
-			//light.alertLight(i);
+			light.alertLight(i);
 		}
 		switchState(State.WAITING_FOR_COMMAND);
 	}
 
 	public void undoLast() {
 		System.out.println("undoing last command");
-		//light.setJsonState(jsonStateBefore);
+		light.setJsonState(jsonStateBefore);
 	}
 
-//	public void onCopyTrigger() {
-//		if (laserWindow != null) {
-//			int selectedLight = laserWindow.getLightSelected();
-//			if (selectedLight > 0) {
-//				System.out.println("Last light selected: " + selectedLight);
-//				this.selectedLights.add(selectedLight);
-//				light.alertLight(selectedLight);
-//				switchState(State.COPY_WAITING);
-//			} else {
-//				System.out.println("no light selected");
-//			}
-//		}
-//	}
+	public void onCopyTrigger() {
+			int selectedLight = getLightSelected();
+			if (selectedLight > 0) {
+				System.out.println("Last light selected: " + selectedLight);
+				this.selectedLights.add(selectedLight);
+				light.alertLight(selectedLight);
+				switchState(State.COPY_WAITING);
+			} else {
+				System.out.println("no light selected");
+			}
+		
+	}
 
-//	public void onCopy2Trigger() {
-//		if (laserWindow != null) {
-//			int selectedLight2 = laserWindow.getLightSelected();
-//			if (selectedLight2 > 0) {
-//				System.out.println("Copying light settings");
-//				System.out.println("First light selected:" + selectedLights.get(0));
-//				System.out.println("Second light selected: " + selectedLight2);
-//				light.alertLight(selectedLight2);
-//				switchState(State.IDLE);
-//				String state1 = light.getJsonState(this.selectedLights.get(0));
-//				light.setJsonState(selectedLight2, state1);
-//			} else {
-//				System.out.println("no light selected");
-//			}
-//		}
-//	}
+	public void onCopy2Trigger() {
+			int selectedLight2 = getLightSelected();
+			if (selectedLight2 > 0) {
+				System.out.println("Copying light settings");
+				System.out.println("First light selected:" + selectedLights.get(0));
+				System.out.println("Second light selected: " + selectedLight2);
+				light.alertLight(selectedLight2);
+				switchState(State.IDLE);
+				String state1 = light.getJsonState(this.selectedLights.get(0));
+				light.setJsonState(selectedLight2, state1);
+			} else {
+				System.out.println("no light selected");
+			}
+		
+	}
 	
 
 	public void mousePressed() {
@@ -257,12 +259,6 @@ public class Launcher extends PApplet {
 			if (mouseOver(light)) {
 				light.setCoor(realWorldMap[index]);
 			}
-		}
-		if (mouseButton == LEFT) {
-			//lightsVectors[editLight].set(realWorldMap[index]);
-		} else {
-			System.out.println("Point3d: " + realWorldMap[index].x + "," + realWorldMap[index].y + ","
-					+ realWorldMap[index].z);
 		}
 	}
 	
@@ -355,5 +351,9 @@ public class Launcher extends PApplet {
 		else {
 				return false;
 		}
+	}
+	
+	public int getLightSelected() {
+		return lightSelected;
 	}
 }
