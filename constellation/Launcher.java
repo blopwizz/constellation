@@ -30,13 +30,12 @@
 */
 
 package constellation;
-import java.io.File;
 
-import java.util.HashMap;
-
-import SimpleOpenNI.SimpleOpenNI;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.io.File;
 import constellation.SpeechUnit.Command;
+import SimpleOpenNI.SimpleOpenNI;
 import processing.core.*;
 import processing.data.Table;
 import processing.data.TableRow;
@@ -50,7 +49,6 @@ public class Launcher extends PApplet {
 	private ControlP5 cp5;
 	public static SimpleOpenNI camera;
 	private boolean activateSpeech = false;
-
 
 	private SpeechUnit voice;
 	private LightUnit lightUnit;
@@ -226,16 +224,22 @@ public class Launcher extends PApplet {
 		for (Light light : lights){
 			if (mouseOver(light)) {
 				light.setCoor(realWorldMap[index]);
+				break;
 			}
+
 		}
 	}
 	
 	public void mouseDragged(){
 		PVector[] realWorldMap = camera.depthMapRealWorld();
 		int index = mouseX + mouseY * camera.depthWidth();
-		for (Light light : lights){
+		Iterator<Light> it = lights.iterator();
+		boolean oneSelected = false;
+		while(it.hasNext() && !oneSelected){
+			Light light = it.next();
 			if (mouseOver(light)) {
 				light.setCoor(realWorldMap[index]);
+				oneSelected = true;
 			}
 		}
 	}
