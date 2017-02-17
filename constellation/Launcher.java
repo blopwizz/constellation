@@ -218,18 +218,6 @@ public class Launcher extends PApplet {
 		System.exit(0);
 	}
 	
-	public void mousePressed() {
-		PVector[]  realWorldMap = camera.depthMapRealWorld();
-		int index = mouseX + mouseY * camera.depthWidth();
-		for (Light light : lights){
-			if (mouseOver(light)) {
-				light.setCoor(realWorldMap[index]);
-				break;
-			}
-
-		}
-	}
-	
 	public void mouseDragged(){
 		PVector[] realWorldMap = camera.depthMapRealWorld();
 		int index = mouseX + mouseY * camera.depthWidth();
