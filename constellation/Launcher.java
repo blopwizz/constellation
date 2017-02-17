@@ -53,15 +53,12 @@ public class Launcher extends PApplet {
 	private int numberLights = 7;
 	private int editLight = 1;
 	private ArrayList<Light> lights;
-	private PVector[] tempVectors;
 	private Table lightsCoor;
 	private int lightSelected;
 	private int[] lightsInUse = {4,5,6};
 	private String jsonStateBefore = ""; // for undo
 	private ArrayList<Integer> prevSelectedLights;
 	private ArrayList<Integer> selectedLights;
-	PVector light1 = new PVector(); 
-	PVector temp1 = new PVector();
 	float sphereRadius = 400;
 
 	private enum State {
@@ -107,10 +104,6 @@ public class Launcher extends PApplet {
 		for (TableRow row : lightsCoor.rows()) {
 			lights.add(new Light(row.getFloat("x"), row.getFloat("y"), row.getFloat("z")));
 		}
-//		tempVectors = new PVector[numberLights];
-//		for (int k1 = 0; k1 < numberLights; k1++){
-//			tempVectors[k1] = new PVector();
-//		}
 	}
 	
 	public void saveLightsCoor() {
@@ -171,8 +164,9 @@ public class Launcher extends PApplet {
 		strokeWeight(5);
 		for (int k = 0; k < numberLights; k++){
 			Light light = lights.get(k);
-			camera.convertRealWorldToProjective(light.getCoor(), tempVectors[k]);
-			ellipse(tempVectors[k].x, tempVectors[k].y, 10, 10);
+			PVector tempVec = new PVector();
+			camera.convertRealWorldToProjective(light.getCoor(), tempVec);
+			ellipse(tempVec.x, tempVec.y, 10, 10);
 		}
 		popStyle();
 	}
@@ -313,7 +307,7 @@ public class Launcher extends PApplet {
 		camera.convertRealWorldToProjective(rayEnd, temp2);
 		line(temp1.x, temp1.y, temp2.x, temp2.y);
 
-		if(intersectionLight(jointPos2, dir, light1, 0)) {lightSelected = lightsInUse[0];}
+		//if(intersectionLight(jointPos2, dir, light1, 0)) {lightSelected = lightsInUse[0];}
 
 		popStyle();
 	}
@@ -327,7 +321,7 @@ public class Launcher extends PApplet {
 		int intersectionSphere = SimpleOpenNI.raySphereIntersection(joint, direction, light, sphereRadius, hit1,
 				hit2);
 		if (intersectionSphere > 0) {
-			ellipse(temp1.x, temp1.y, 50, 50);
+			//ellipse(temp1.x, temp1.y, 50, 50);
 			return true;
 		}
 		else {return false;}
