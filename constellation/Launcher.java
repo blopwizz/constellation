@@ -32,12 +32,13 @@ import SimpleOpenNI.SimpleOpenNI;
 import java.util.ArrayList;
 //import constellation.SpeechUnit.Command;
 import processing.core.*;
+import controlP5.*;
 
 public class Launcher extends PApplet {
 	public static void main(String[] args) {
 		PApplet.main("constellation.Launcher");
 	}
-	
+	private ControlP5 cp5;
 	private SimpleOpenNI camera;
 	//private SpeechUnit voice;
 	//private LightUnit light;
@@ -66,6 +67,17 @@ public class Launcher extends PApplet {
 
 	public void setup() {
 		size(640, 480);
+		cp5 = new ControlP5(this);
+		cp5.addButton("QUIT")
+	     .setValue(0)
+	     .setPosition(20,20)
+	     .setSize(40,19)
+	     ;
+		cp5.addButton("HELP")
+	     .setValue(0)
+	     .setPosition(70,20)
+	     .setSize(40,19)
+	     ;
 		//voice = new SpeechUnit(this);
 		camera = new SimpleOpenNI(this);
 		camera.setMirror(true);
