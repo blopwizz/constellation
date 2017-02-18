@@ -14,17 +14,10 @@
 *   
 *   Refer to Constellation Setup Guide
 *   https://docs.google.com/document/d/1HpO8hGLaa7HpF74TBYGDHB-de1lfbYJK24u8smRUuSE
-<<<<<<< HEAD
-
-=======
 *
-*------------------------------------------------------
-*[TO DO]
-* - fix the calibration mode to do it several times if needed
->>>>>>> master
 * ------------------------------------------------------
 * 
-* Coder: Jorg, Frederic, Stephane
+* Coder: Joerg, Frederic, Stephane
 * Date: February 2017
 * Organisation: TU Berlin
 */
@@ -46,6 +39,7 @@ public class Launcher extends PApplet {
 	public static void main(String[] args) {
 		PApplet.main("constellation.Launcher");
 	}
+
 	private ControlP5 cp5;
 	public static SimpleOpenNI camera;
 	private boolean activateSpeech = false;
@@ -53,91 +47,65 @@ public class Launcher extends PApplet {
 	private SpeechUnit voice;
 	private LightUnit lightUnit;
 	private Command command;
-	private State state = State.IDLE;
 	private boolean shouldStop = false;
-	//private SpeechUnit.Command command;
+	// private SpeechUnit.Command command;
 	// HELP TO CONTINUE
 	private boolean helpDisplay = false;
 	private int numberLights;
 	private ArrayList<Light> lights;
 	private Table lightsCoor;
 	private int lightSelected;
-	private int[] lightsInUse = {4,5,6};
+	private int[] lightsInUse = { 4, 5, 6 };
 	private String jsonStateBefore = ""; // for undo
 	private ArrayList<Integer> prevSelectedLights;
 	private ArrayList<Integer> selectedLights;
 
 	float sphereRadius = 400;
 
-
-	private enum State {
-		IDLE, WAITING_FOR_COMMAND, INSTRUCTED, COPY_WAITING;
+	public void setup() { // excuted one time before the draw loop (Processing)
+		size(640, 480); // size of the sketch
+		setupUI(); // UI: controlP5 buttons, text, user parameters
+		setupCamera(); // Camera: Xtion pro, SimpleOpenNI
+		initialize(); // start Speech, Light control threads
 	}
 
-	
-	public void setup() {   //excuted one time before the draw loop (Processing)
-		size(640, 480);     //size of the sketch
-		setupUI();          //UI: controlP5 buttons, text, user parameters    
-		setupCamera();      //Camera: Xtion pro, SimpleOpenNI
-		initialize();       //start Speech, Light control threads
+	public void draw() { // loop drawing each frame (Processing)
+		updateCamera(); // Simple Open NI
+		drawSkeleton();
+		drawLightsPoints(); // draw light calibration points
 	}
-	
-	public void draw() {     //loop drawing each frame (Processing)
-		updateCamera();      //Simple Open NI 
-		drawSkeleton();     
-		updateState();       //interaction states
-		drawLightsPoints();  //draw light calibration points
-	}
-	
-	
-	//---------------------- SETUP FUNCTIONS   ---------------------------------
+
+	// ---------------------- SETUP FUNCTIONS ---------------------------------
 	public void setupUI() {
 
 		cp5 = new ControlP5(this);
 		lightsCoor = loadTable("src/lights_coordinates.csv", "header");
 		numberLights = lightsCoor.getRowCount();
-		int val= numberLights; //need  "fresh" int to avoid side effects
-		cp5.addSlider("quantity")
-	     .setPosition(20,height-120)
-	     .setSize(20,100)
-	     .setRange(0,7)
-	     .setNumberOfTickMarks(8)
-	     .setValue(val)
-	     ;
+		int val = numberLights; // need "fresh" int to avoid side effects
+		cp5.addSlider("quantity").setPosition(20, height - 120).setSize(20, 100).setRange(0, 7).setNumberOfTickMarks(8)
+				.setValue(val);
 		lights = new ArrayList<Light>();
 		Iterator<TableRow> it = lightsCoor.rows().iterator();
-		while(it.hasNext() && lights.size() < numberLights) {
+		while (it.hasNext() && lights.size() < numberLights) {
 			TableRow row = it.next();
-			lights.add(new Light(row.getInt("number"), 
-					 row.getFloat("x"), 	
-					 row.getFloat("y"), 
-					 row.getFloat("z")));
+			lights.add(new Light(row.getInt("number"), row.getFloat("x"), row.getFloat("y"), row.getFloat("z")));
 		}
-		//buttons
-		
-		cp5.addButton("quit")
-	     .setPosition(20,20)
-	     .setSize(40,19)
-	     ;
-		cp5.addButton("help")
-	     .setPosition(70,20)
-	     .setSize(40,19)
-	     ;
+		// buttons
+
+		cp5.addButton("quit").setPosition(20, 20).setSize(40, 19);
+		cp5.addButton("help").setPosition(70, 20).setSize(40, 19);
 
 	}
-	
+
 	public void setupLightsPosition(int number) {
-		//saved lights coordinates
+		// saved lights coordinates
 		lights = new ArrayList<Light>();
-		for (int k = 0; k< number; k++){
-			lights.add(new Light(k,
-					- 200*cos(TWO_PI*k/7),
-					500 - 200*sin(TWO_PI*k/7),
-					2000));
+		for (int k = 0; k < number; k++) {
+			lights.add(new Light(k, -200 * cos(TWO_PI * k / 7), 500 - 200 * sin(TWO_PI * k / 7), 2000));
 		}
 		numberLights = number;
 	}
-	
+
 	public void setupCamera() {
 		camera = new SimpleOpenNI(this);
 		camera.setMirror(true);
@@ -150,7 +118,6 @@ public class Launcher extends PApplet {
 		camera.enableUser();
 		camera.alternativeViewPointDepthToImage();
 	}
-	
 
 	private void initialize() {
 		voice = new SpeechUnit(this);
@@ -161,15 +128,15 @@ public class Launcher extends PApplet {
 		this.selectedLights = new ArrayList<Integer>();
 		lightUnit = new LightUnit();
 	}
-	
-	
-	// -----------------------  UPDATE AND DRAW FUNCTIONS -----------------------------
-	
+
+	// ----------------------- UPDATE AND DRAW FUNCTIONS
+	// -----------------------------
+
 	public void updateCamera() {
-		camera.update(); 
-		image(camera.depthImage(),0, 0);
+		camera.update();
+		image(camera.depthImage(), 0, 0);
 	}
-	
+
 	public void drawSkeleton() {
 		int[] userList = camera.getUsers();
 		for (int i = 0; i < userList.length; i++) {
@@ -178,49 +145,27 @@ public class Launcher extends PApplet {
 			}
 		}
 	}
-	
-	//interaction states
-	public void updateState() {
-				switch (this.state) {
-				case IDLE:
-					break;
-				case WAITING_FOR_COMMAND:
-					break;
-				case INSTRUCTED:
-					this.jsonStateBefore = lightUnit.getJsonState();
-					lightUnit.performAction(this.selectedLights, this.command);
-					switchState(State.IDLE);
-					this.prevSelectedLights = this.selectedLights;
-					this.selectedLights = new ArrayList<Integer>();
-					break;
-				case COPY_WAITING:
-					break;
-				default:
-					break;
-				}
-	}
-	
+
 	public void drawLightsPoints() {
-		
-		for (int k = 0; k < lights.size(); k++){
+
+		for (int k = 0; k < lights.size(); k++) {
 			PVector coor2d = lights.get(k).getCoor2D();
 			pushStyle();
 			stroke(255, 255, 255, 150);
 			strokeWeight(5);
 			ellipse(coor2d.x, coor2d.y, 20, 20);
 			fill(0);
-			text(k, coor2d.x-5, coor2d.y+4);
+			text(k, coor2d.x - 5, coor2d.y + 4);
 			popStyle();
 		}
-		
+
 	}
-	
-	
-	//---------------------------- DATA  -----------------------------------
-	
+
+	// ---------------------------- DATA -----------------------------------
+
 	public void saveLightsCoor() {
 		lightsCoor.clearRows();
-		for (int k = 0; k < numberLights; k++){
+		for (int k = 0; k < numberLights; k++) {
 			TableRow newRow = lightsCoor.addRow();
 			newRow.setInt("number", k);
 			Light light = lights.get(k);
@@ -231,29 +176,28 @@ public class Launcher extends PApplet {
 		String fileName = dataPath("src/lights_coordinates.csv");
 		File f = new File(fileName);
 		if (f.exists()) {
-		    f.delete();
-		  }
+			f.delete();
+		}
 		saveTable(lightsCoor, "src/lights_coordinates.csv");
 	}
-	
-	
-	//---------------------------------- UI EVENTS ----------------------------
-	
-	public void quit() {    //controlP5 button
+
+	// ---------------------------------- UI EVENTS ----------------------------
+
+	public void quit() { // controlP5 button
 		saveLightsCoor();
 		System.exit(0);
 	}
-	
-	public void quantity(float number) {  //controlP5 slider
+
+	public void quantity(float number) { // controlP5 slider
 		setupLightsPosition(floor(number));
 	}
-	
-	public void mouseDragged(){
+
+	public void mouseDragged() {
 		PVector[] realWorldMap = camera.depthMapRealWorld();
 		int index = mouseX + mouseY * camera.depthWidth();
 		Iterator<Light> it = lights.iterator();
 		boolean oneSelected = false;
-		while(it.hasNext() && !oneSelected){
+		while (it.hasNext() && !oneSelected) {
 			Light light = it.next();
 			if (mouseOver(light)) {
 				PVector currCoor = light.getCoor3D();
@@ -263,62 +207,58 @@ public class Launcher extends PApplet {
 			}
 		}
 	}
-	
-	public void mousePressed(){
+
+	public void mousePressed() {
 		PVector[] realWorldMap = camera.depthMapRealWorld();
 		int index = mouseX + mouseY * camera.depthWidth();
-		if (mouseButton == RIGHT){
+		if (mouseButton == RIGHT) {
 			printArray(realWorldMap[index]);
 		}
 	}
-	
+
 	public void keyPressed() {
-		switch(key) {
-		case 'h' : helpDisplay = true;
+		switch (key) {
+		case 'h':
+			helpDisplay = true;
 		}
 	}
-	
+
 	public boolean mouseOver(Light light) {
 		PVector coor2d = light.getCoor2D();
 		float disX = coor2d.x - mouseX;
 		float disY = coor2d.y - mouseY;
-		if (disX*disX + disY*disY < Light.RADIUS*Light.RADIUS/4)  {
+		if (disX * disX + disY * disY < Light.RADIUS * Light.RADIUS / 4) {
 			return true;
-		} 
-		else {
-				return false;
+		} else {
+			return false;
 		}
 	}
 
-	
-	//------------------------------- STATE EVENTS -------------------------------
+	// ------------------------------- STATE EVENTS
+	// -------------------------------
 
 	boolean onSelectionTrigger() {
-			int selectedLight = getLightSelected();
-			if (selectedLight > 0) {
-				System.out.println("Last light selected: " + selectedLight);
-				this.selectedLights.add(selectedLight);
-				lightUnit.alertLight(selectedLight);
-				switchState(State.WAITING_FOR_COMMAND);
-				return true;
-			} else {
-				System.out.println("no light selected");
-			}
+		int selectedLight = getLightSelected();
+		if (selectedLight > 0) {
+			System.out.println("Last light selected: " + selectedLight);
+			this.selectedLights.add(selectedLight);
+			lightUnit.alertLight(selectedLight);
+			return true;
+		} else {
+			System.out.println("no light selected");
+		}
 		return false;
 	}
 
 	void onClose() {
-		switchState(State.IDLE);
 	}
 
 	void onCommand(SpeechUnit.Command c) {
 		command = c;
-		switchState(State.INSTRUCTED);
-	}
-
-	private void switchState(State state) {
-		System.out.println("Switching state to:" + state);
-		this.state = state;
+		this.jsonStateBefore = lightUnit.getJsonState();
+		lightUnit.performAction(this.selectedLights, this.command);
+		this.prevSelectedLights = this.selectedLights;
+		this.selectedLights = new ArrayList<Integer>();
 	}
 
 	public void onAllSelectionTrigger() {
@@ -326,7 +266,6 @@ public class Launcher extends PApplet {
 			selectedLights.add(i);
 			lightUnit.alertLight(i);
 		}
-		switchState(State.WAITING_FOR_COMMAND);
 	}
 
 	public void undoLast() {
@@ -335,16 +274,15 @@ public class Launcher extends PApplet {
 	}
 
 	public void onCopyTrigger() {
-			int selectedLight = getLightSelected();
-			if (selectedLight > 0) {
-				System.out.println("Last light selected: " + selectedLight);
-				this.selectedLights.add(selectedLight);
-				lightUnit.alertLight(selectedLight);
-				switchState(State.COPY_WAITING);
-			} else {
-				System.out.println("no light selected");
-			}
-		
+		int selectedLight = getLightSelected();
+		if (selectedLight > 0) {
+			System.out.println("Last light selected: " + selectedLight);
+			this.selectedLights.add(selectedLight);
+			lightUnit.alertLight(selectedLight);
+		} else {
+			System.out.println("no light selected");
+		}
+
 	}
 
 	public void onPasteTrigger() {
@@ -354,12 +292,11 @@ public class Launcher extends PApplet {
 			System.out.println("First light selected:" + selectedLights.get(0));
 			System.out.println("Second light selected: " + selectedLight2);
 			lightUnit.alertLight(selectedLight2);
-			switchState(State.IDLE);
 			this.jsonStateBefore = lightUnit.getJsonState();
 			String state1 = lightUnit.getJsonState(this.selectedLights.get(0));
 			lightUnit.setJsonState(selectedLight2, state1);
 			prevSelectedLights = this.selectedLights;
-			selectedLights=new ArrayList<Integer>();
+			selectedLights = new ArrayList<Integer>();
 		} else {
 			System.out.println("no light selected");
 		}
@@ -374,21 +311,18 @@ public class Launcher extends PApplet {
 			System.out.println("First light selected:" + selectedLights.get(0));
 			System.out.println("Second light selected: " + selectedLight2);
 			lightUnit.alertLight(selectedLight2);
-			switchState(State.IDLE);
 			this.jsonStateBefore = lightUnit.getJsonState();
 			String state1 = lightUnit.getJsonState(this.selectedLights.get(0));
 			lightUnit.setJsonState(selectedLight2, state1);
 			prevSelectedLights = this.selectedLights;
-			selectedLights=new ArrayList<Integer>();
+			selectedLights = new ArrayList<Integer>();
 		} else {
-			System.out.println("no light selected");		
-	}}
+			System.out.println("no light selected");
+		}
+	}
 
-	
-	
-	// -------------------------  SIMPLE OPEN NI FUNCTIONS  ----------------------------
-	
-	
+	// ------------------------- SIMPLE OPEN NI FUNCTIONS
+	// ----------------------------
 
 	public void drawIntersection(int userId) {
 		PVector jointPos1 = new PVector();
@@ -398,7 +332,7 @@ public class Launcher extends PApplet {
 		float c2 = camera.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND, jointPos2);
 		PVector dir = PVector.sub(jointPos2, jointPos1);
 		dir.normalize();
-		PVector rayEnd = PVector.mult(dir, 4000);  //direction 4m
+		PVector rayEnd = PVector.mult(dir, 4000); // direction 4m
 		rayEnd.add(jointPos2);
 
 		pushStyle(); // style layer: modifications of style until popStyle
@@ -409,11 +343,12 @@ public class Launcher extends PApplet {
 		camera.convertRealWorldToProjective(jointPos2, temp1);
 		camera.convertRealWorldToProjective(rayEnd, temp2);
 		line(temp1.x, temp1.y, temp2.x, temp2.y);
-		
+
 		for (Light light : lights) {
-			if(intersectionLight(jointPos2, dir, light.getCoor3D(), 0)) {lightSelected = light.getNumber();}
+			if (intersectionLight(jointPos2, dir, light.getCoor3D(), 0)) {
+				lightSelected = light.getNumber();
+			}
 		}
-		
 
 		popStyle();
 	}
@@ -422,7 +357,7 @@ public class Launcher extends PApplet {
 		PVector hit1 = new PVector();
 		PVector hit2 = new PVector();
 		// raySphereIntersection: origin, direction, a sphere target with radius
-		// Output: two vector of intersection with the sphere  ->( )->
+		// Output: two vector of intersection with the sphere ->( )->
 		int intersectionSphere = SimpleOpenNI.raySphereIntersection(joint, direction, lightCoor, sphereRadius, hit1,
 				hit2);
 		if (intersectionSphere > 0) {
@@ -430,8 +365,9 @@ public class Launcher extends PApplet {
 			camera.convertRealWorldToProjective(lightCoor, temp);
 			ellipse(temp.x, temp.y, 50, 50);
 			return true;
+		} else {
+			return false;
 		}
-		else {return false;}
 	}
 
 	// SimpleOpenNI events
@@ -440,21 +376,18 @@ public class Launcher extends PApplet {
 		System.out.println("\tstart tracking skeleton");
 		camera.startTrackingSkeleton(userId);
 	}
+
 	public void onLostUser(SimpleOpenNI curContext, int userId) {
 		System.out.println("onLostUser - userId: " + userId);
 	}
-	
-	
-	//--------------------------- OTHER --------------------------------------
-	
-	
+
+	// --------------------------- OTHER --------------------------------------
+
 	public int getLightSelected() {
 		return lightSelected;
 	}
 
 	public void onCorrectionTrigger() {
-		if(State.WAITING_FOR_COMMAND==state) {
-
-		}
+		// TODO
 	}
 }
