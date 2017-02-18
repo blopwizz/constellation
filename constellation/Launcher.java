@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.File;
 import constellation.SpeechUnit.Command;
+import constellation.SpeechUnit.Preset;
 import SimpleOpenNI.SimpleOpenNI;
 import processing.core.*;
 import processing.data.Table;
@@ -59,6 +60,7 @@ public class Launcher extends PApplet {
 	private String jsonStateBefore = ""; // for undo
 	private ArrayList<Integer> prevSelectedLights;
 	private ArrayList<Integer> selectedLights;
+	private int lastLightAdded;
 
 	float sphereRadius = 400;
 
@@ -240,6 +242,7 @@ public class Launcher extends PApplet {
 	boolean onSelectionTrigger() {
 		int selectedLight = getLightSelected();
 		if (selectedLight > 0) {
+			beforeAction();
 			System.out.println("Last light selected: " + selectedLight);
 			this.selectedLights.add(selectedLight);
 			lightUnit.alertLight(selectedLight);
@@ -251,6 +254,7 @@ public class Launcher extends PApplet {
 	}
 
 	void onClose() {
+		afterAction();
 	}
 
 	void onCommand(SpeechUnit.Command c) {
@@ -262,7 +266,7 @@ public class Launcher extends PApplet {
 	}
 
 	public void onAllSelectionTrigger() {
-		for (int i = 1; i < 10; i++) {
+		for (int i : lightsInUse) {
 			selectedLights.add(i);
 			lightUnit.alertLight(i);
 		}
@@ -270,12 +274,13 @@ public class Launcher extends PApplet {
 
 	public void undoLast() {
 		System.out.println("Reverting last change.");
-		lightUnit.setJsonState(jsonStateBefore);
+		restorePreviousState();
 	}
 
 	public void onCopyTrigger() {
 		int selectedLight = getLightSelected();
 		if (selectedLight > 0) {
+			beforeAction();
 			System.out.println("Last light selected: " + selectedLight);
 			this.selectedLights.add(selectedLight);
 			lightUnit.alertLight(selectedLight);
@@ -292,11 +297,9 @@ public class Launcher extends PApplet {
 			System.out.println("First light selected:" + selectedLights.get(0));
 			System.out.println("Second light selected: " + selectedLight2);
 			lightUnit.alertLight(selectedLight2);
-			this.jsonStateBefore = lightUnit.getJsonState();
 			String state1 = lightUnit.getJsonState(this.selectedLights.get(0));
 			lightUnit.setJsonState(selectedLight2, state1);
-			prevSelectedLights = this.selectedLights;
-			selectedLights = new ArrayList<Integer>();
+			afterAction();
 		} else {
 			System.out.println("no light selected");
 		}
@@ -388,6 +391,56 @@ public class Launcher extends PApplet {
 	}
 
 	public void onCorrectionTrigger() {
-		// TODO
+		int currentSelected = getLightSelected();
+		if (currentSelected != 0) {
+			restorePreviousState();
+			selectedLights.remove(lastLightAdded);
+			lightUnit.alertLight(currentSelected);
+			selectedLights.add(currentSelected);
+			lastLightAdded = currentSelected;
+		} else {
+			System.out.println("no light selected");
+		}
+	}
+
+	private void restorePreviousState() {
+		lightUnit.setJsonState(this.jsonStateBefore);
+	}
+
+	private void updatePreviousState() {
+		this.jsonStateBefore = lightUnit.getJsonState();
+	}
+
+	public void onLoopStop() {
+		for (int id : selectedLights) {
+			lightUnit.stopColorloop(id);
+		}
+	}
+
+	public void onLoopStart() {
+		for (int id : selectedLights) {
+			lightUnit.startColorloop(id);
+		}
+	}
+
+	public void onPreset(Preset preset) {
+		lightUnit.loadPreset(selectedLights, preset);
+		afterAction();
+	}
+
+	public void onLoadTrigger() {
+		beforeAction();
+		for (int id : lightsInUse) {
+			selectedLights.add(id);
+		}
+	}
+
+	private void beforeAction() {
+		updatePreviousState();
+	}
+
+	private void afterAction() {
+		prevSelectedLights = selectedLights;
+		selectedLights = new ArrayList<>();
 	}
 }

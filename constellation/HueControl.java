@@ -59,6 +59,12 @@ public class HueControl {
 		sendPUT(rurl, payload);
 	}
 
+	public void setAll(int ID, String hue, String sat, String bri) throws Exception {
+		String payload = "{\"hue\":" + hue + ",\"sat\":" + sat + ",\"bri\":" + bri + "}";
+		String rurl = url + username + "/lights/" + ID + "/state";
+		sendPUT(rurl, payload);
+	}
+
 	public void setHue(int ID, String hue) throws Exception {
 		String payload = "{\"hue\":" + hue + "}";
 		sendPUT(url + username + "/lights/" + ID + "/state", payload);

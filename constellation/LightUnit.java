@@ -1,13 +1,12 @@
 package constellation;
 
 import java.util.ArrayList;
+import constellation.SpeechUnit.Preset;
 
 public class LightUnit {
 
 	private boolean hueActivated = false;
 	private HueControl hue;
-	
-	
 
 	public LightUnit() {
 		String username = "3FCBC5219152E94C7B998679E5FCCA15";
@@ -25,13 +24,9 @@ public class LightUnit {
 	public String getJsonState() {
 		if (hueActivated) {
 			try {
-				System.out.println("debug 1");
 				return hue.getJsonStatus();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-				System.out.println("debug 2");
-
 			}
 		}
 		return "";
@@ -42,20 +37,16 @@ public class LightUnit {
 			try {
 				hue.setJsonStatus(payload);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 
 	public String getJsonState(int id) {
-		System.out.println("debug 3");
-
 		if (hueActivated) {
 			try {
 				return hue.getLightJson(id);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 
 			}
@@ -64,35 +55,75 @@ public class LightUnit {
 	}
 
 	public void setJsonState(int id, String payload) {
-		System.out.println("debug 4");
-
 		if (hueActivated) {
 			try {
 				hue.setLightJson(id, payload);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
 	public void changeBrightness(int id, String change) {
-		System.out.println("Adding "+change+" to brightnesslevel.");
+		System.out.println("Triggered lights: " + id + " with Command Change Brightness by " + change + " .");
 		try {
 			hue.incBri(id, change);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	public void alertLight(int id) {
+		System.out.println("Triggered lights: " + id + " with Command alert");
 		if (hueActivated) {
 			try {
 				hue.alert(id);
 			} catch (Exception e) {
-				// TODO: handle exception
+				e.printStackTrace();
 			}
+		}
+	}
+
+	public void startColorloop(int id) {
+		try {
+			hue.colorloopOn(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void stopColorloop(int id) {
+		try {
+			hue.colorloopOff(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void loadPreset(ArrayList<Integer> lightIds, Preset preset) {
+		try {
+			for (int id : lightIds) {
+				switch (preset) {
+				case CLEANING: // maximum white
+					hue.setAll(id, "0", "0", "254"); 
+					break;
+				case PARTY: // random changing colors at half brightness
+					hue.setAll(id, (int)(Math.random()*65535)+"", "254", "125");
+					hue.colorloopOn(id);
+					break;
+				case ROMANCE: // red half brightness
+					hue.setAll(id, "0", "200", "120"); 
+					break;
+				case WORK: // mostly white with a little yellow
+					hue.setAll(id, "12750", "50", "254"); 
+					break;
+				default:
+					System.out.println("unrecognized preset");
+					break;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -100,8 +131,6 @@ public class LightUnit {
 		System.out.println("Triggered lights: " + selectedLights + " with Command " + command + " .");
 		if (hueActivated) {
 			for (Integer light : selectedLights) {
-				System.out.println("debug 5 "+ light);
-
 				try {
 
 					switch (command) {
@@ -122,7 +151,7 @@ public class LightUnit {
 						hue.setSat(light.intValue(), "255");
 						break;
 					case WHITE:
-						hue.setSat(light.intValue(), "0");// TODO
+						hue.setSat(light.intValue(), "0");
 						break;
 					case PURPLE:
 						hue.setHue(light.intValue(), "46920");

@@ -17,21 +17,37 @@ public class SpeechUnit implements Runnable {
 	private final static String LANGUAGE_MODEL_PATH = "resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin";
 
 	private final static String[] ACTIVATION_STRING = { "constellation" };
-	private final static String CLOSE_STRING = "close";
+	private final static String[] CLOSE_STRING = {"close"};
 	private final static String[] SINGLE_LIGHT_SELECTER = { "switch that", "switch this", "select that", "select that",
 			"make that", "make this" };
 	private final static String[] ALL_LIGHTS_SELECTER = { "switch all", "make all", "turn all", "selecct all" };
-	private final static String COPY_STRING = "copy";
+	private final static String[] COPY_STRING = {"copy"};
 	private final static String[] COPY_FINISH = { "there" };
 	private final static String[] COPY_ADDITIONAL = { "and there" };
 	private final static String[] UNDO_STRINGS = { "undo", "revert" };
 	private final static String[] CORRECTION_STRINGS = { "no that", "no this" };
 	private final static String[] ADD_STRING = { "and that", "and this" };
+	private final static String[] LOOP_START = { "loop" };
+	private final static String[] LOOP_END = { "stop" };
+	private final static String[] LOAD_STRING = { "load" };
 
 	private boolean lastActionCopy = false;
-	
+
 	private enum State {
-		IDLE, ACTIVATED, LIGHT_CHOSEN, COPY_CHOSEN;
+		IDLE, ACTIVATED, LIGHT_CHOSEN, COPY_CHOSEN, COLORLOOP, LOAD;
+	}
+
+	public enum Preset {
+		WORK("work"), CLEANING("cleaning"), ROMANCE("romance"), PARTY("party"), UNDEFINED("undefined");
+		private final String word;
+
+		Preset(String word) {
+			this.word = word;
+		}
+
+		public String getWord() {
+			return word;
+		}
 	}
 
 	public enum Command {
@@ -66,8 +82,9 @@ public class SpeechUnit implements Runnable {
 			System.out.println("Done");
 			long lastStateChange = getCurrentMillis();
 			while (true) {
-				if(shouldSwitchToIdle(lastStateChange)){
-					System.out.println("After " + STATE_TIMEOUT + " milliseconds of no command, we switch back to Idle state.");
+				if (shouldSwitchToIdle(lastStateChange)) {
+					System.out.println(
+							"After " + STATE_TIMEOUT + " milliseconds of no command, we switch back to Idle state.");
 					onClose();
 				}
 				SpeechResult result = recognizer.getResult();
@@ -96,6 +113,9 @@ public class SpeechUnit implements Runnable {
 						lastActionCopy = false;
 						this.state = State.COPY_CHOSEN;
 						onCopyTrigger();
+					} else if (isLoad(result)) {
+						onLoadTrigger();
+						switchState(State.LOAD);
 					} else if (lastActionCopy && isCopyAdditional(result)) {
 						onCopyAgain();
 					}
@@ -107,6 +127,10 @@ public class SpeechUnit implements Runnable {
 						break;
 					} else if (isCorrection(result)) {
 						onCorrectionTrigger();
+						switchState(State.COLORLOOP);
+						break;
+					} else if (isLoopStart(result)) {
+						onLoopTrigger();
 						break;
 					}
 					Command returnCommand = getCommand(result);
@@ -125,6 +149,21 @@ public class SpeechUnit implements Runnable {
 						switchState(State.ACTIVATED);
 						lastActionCopy = true;
 					}
+				case COLORLOOP:
+					if (isLoopStop(result)) {
+						onLoopStopTrigger();
+						switchState(State.ACTIVATED);
+					}
+					break;
+				case LOAD:
+					Preset returnPreset = getPreset(result);
+					if (Preset.UNDEFINED != returnPreset) {
+						onPreset(returnPreset);
+						switchState(State.ACTIVATED);
+					}
+					break;
+				default:
+					break;
 				}
 
 				if (containsClose(result)) {
@@ -144,22 +183,64 @@ public class SpeechUnit implements Runnable {
 		return STATE_TIMEOUT < (getCurrentMillis() - lastStateChange);
 	}
 
-	private long getCurrentMillis(){
-		return Math.round(System.nanoTime()/10 ^ 6);
+	private long getCurrentMillis() {
+		return Math.round(System.nanoTime() / 10 ^ 6);
+	}
+
+	private void onLoadTrigger() {
+		main.onLoadTrigger();
+	}
+
+	private boolean isLoad(SpeechResult result) {
+		String hypothesis = result.getHypothesis();
+		return stringContainsArrayEntry(hypothesis, LOAD_STRING);
+	}
+
+	private void onPreset(Preset preset) {
+		System.out.println("You have chosen the preset: " + preset);
+		main.onPreset(preset);
+	}
+
+	private Preset getPreset(SpeechResult result) {
+		String hypothesis = result.getHypothesis();
+		for (Preset preset : Preset.values()) {
+			if (hypothesis.contains(preset.getWord())) {
+				return preset;
+			}
+		}
+		return Preset.UNDEFINED;
+	}
+
+	private void onLoopStopTrigger() {
+		main.onLoopStop();
+	}
+
+	private boolean isLoopStop(SpeechResult result) {
+		String hypothesis = result.getHypothesis();
+		return stringContainsArrayEntry(hypothesis, LOOP_END);
+	}
+
+	private void onLoopTrigger() {
+		main.onLoopStart();
+	}
+
+	private boolean isLoopStart(SpeechResult result) {
+		String hypothesis = result.getHypothesis();
+		return stringContainsArrayEntry(hypothesis, LOOP_START);
 	}
 
 	private void onCorrectionTrigger() {
-		main.onCorrectionTrigger();		
+		main.onCorrectionTrigger();
 	}
 
 	private void onCopyAgain() {
-		main.onCopyAgain();	
+		main.onCopyAgain();
 	}
 
 	private void onPasteTrigger() {
 		main.onPasteTrigger();
 	}
-	
+
 	public void onCopyTrigger() {
 		main.onCopyTrigger();
 	}
@@ -177,9 +258,9 @@ public class SpeechUnit implements Runnable {
 		}
 		return Command.UNDEFINED_COMMAND;
 	}
-	
-	private void switchState(SpeechUnit.State state){
-		System.out.println("SpeechUnit: switching to State" +  state.name());
+
+	private void switchState(SpeechUnit.State state) {
+		System.out.println("SpeechUnit: switching to State" + state.name());
 		this.state = state;
 	}
 
@@ -199,7 +280,8 @@ public class SpeechUnit implements Runnable {
 	}
 
 	private boolean isCopy(SpeechResult result) {
-		return result.getHypothesis().contains(COPY_STRING);
+		String hypothesis = result.getHypothesis();
+		return stringContainsArrayEntry(hypothesis, COPY_STRING);
 	}
 
 	private boolean isAdd(SpeechResult result) {
@@ -216,7 +298,7 @@ public class SpeechUnit implements Runnable {
 		String hypothesis = result.getHypothesis();
 		return stringContainsArrayEntry(hypothesis, COPY_FINISH);
 	}
-	
+
 	private boolean isCopyAdditional(SpeechResult result) {
 		String hypothesis = result.getHypothesis();
 		return stringContainsArrayEntry(hypothesis, COPY_ADDITIONAL);
@@ -228,7 +310,6 @@ public class SpeechUnit implements Runnable {
 	}
 
 	private boolean stringContainsArrayEntry(String hypothesis, String[] array) {
-		// TODO: replace with Java8 Streams
 		for (String word : array) {
 			if (hypothesis.contains(word)) {
 				return true;
@@ -238,7 +319,8 @@ public class SpeechUnit implements Runnable {
 	}
 
 	private boolean containsClose(SpeechResult result) {
-		return result.getHypothesis().contains(CLOSE_STRING);
+		String hypothesis = result.getHypothesis();
+		return stringContainsArrayEntry(hypothesis, CLOSE_STRING);
 	}
 
 	private boolean onSelectionTrigger() {
