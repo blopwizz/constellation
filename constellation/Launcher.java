@@ -49,7 +49,7 @@ public class Launcher extends PApplet {
 	private LightUnit lightUnit;
 	private Command command;
 	private boolean shouldStop = false;
-	// private SpeechUnit.Command command;
+	//private SpeechUnit.Command command;
 	// HELP TO CONTINUE
 	private boolean helpDisplay = false;
 	private int numberLights;
@@ -323,9 +323,40 @@ public class Launcher extends PApplet {
 			System.out.println("no light selected");
 		}
 	}
+	
 
-	// ------------------------- SIMPLE OPEN NI FUNCTIONS
-	// ----------------------------
+	public void onCorrectionTrigger() {
+		int currentSelected = getLightSelected();
+		if (currentSelected != 0) {
+			restorePreviousState();
+			selectedLights.remove(lastLightAdded);
+			lightUnit.alertLight(currentSelected);
+			selectedLights.add(currentSelected);
+			lastLightAdded = currentSelected;
+		} else {
+			System.out.println("no light selected");
+		}
+	}
+
+	public void onLoopStart() {
+		for (int id : selectedLights) {
+			lightUnit.startColorloop(id);
+		}
+	}
+
+	public void onPreset(Preset preset) {
+		lightUnit.loadPreset(selectedLights, preset);
+		afterAction();
+	}
+
+	public void onLoadTrigger() {
+		beforeAction();
+		for (int id : lightsInUse) {
+			selectedLights.add(id);
+		}
+	}
+
+	// ------------------------- SIMPLE OPEN NI FUNCTIONS ----------------------------
 
 	public void drawIntersection(int userId) {
 		PVector jointPos1 = new PVector();
@@ -390,18 +421,7 @@ public class Launcher extends PApplet {
 		return lightSelected;
 	}
 
-	public void onCorrectionTrigger() {
-		int currentSelected = getLightSelected();
-		if (currentSelected != 0) {
-			restorePreviousState();
-			selectedLights.remove(lastLightAdded);
-			lightUnit.alertLight(currentSelected);
-			selectedLights.add(currentSelected);
-			lastLightAdded = currentSelected;
-		} else {
-			System.out.println("no light selected");
-		}
-	}
+	
 
 	private void restorePreviousState() {
 		lightUnit.setJsonState(this.jsonStateBefore);
@@ -414,24 +434,6 @@ public class Launcher extends PApplet {
 	public void onLoopStop() {
 		for (int id : selectedLights) {
 			lightUnit.stopColorloop(id);
-		}
-	}
-
-	public void onLoopStart() {
-		for (int id : selectedLights) {
-			lightUnit.startColorloop(id);
-		}
-	}
-
-	public void onPreset(Preset preset) {
-		lightUnit.loadPreset(selectedLights, preset);
-		afterAction();
-	}
-
-	public void onLoadTrigger() {
-		beforeAction();
-		for (int id : lightsInUse) {
-			selectedLights.add(id);
 		}
 	}
 
