@@ -43,7 +43,7 @@ public class Launcher extends PApplet {
 
 	private ControlP5 cp5;
 	public static SimpleOpenNI camera;
-	private boolean activateSpeech = false;
+	private boolean activateSpeech = true;
 
 	private SpeechUnit voice;
 	private LightUnit lightUnit;
