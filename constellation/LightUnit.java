@@ -33,6 +33,7 @@ public class LightUnit {
 	}
 
 	public void setJsonState(String payload) {
+		System.out.println("Triggered all lights with a specific state.");
 		if (hueActivated) {
 			try {
 				hue.setJsonStatus(payload);
@@ -55,6 +56,8 @@ public class LightUnit {
 	}
 
 	public void setJsonState(int id, String payload) {
+		System.out.println("Triggered lights: " + id + " with setting a specific setting.");
+
 		if (hueActivated) {
 			try {
 				hue.setLightJson(id, payload);
@@ -66,10 +69,12 @@ public class LightUnit {
 
 	public void changeBrightness(int id, String change) {
 		System.out.println("Triggered lights: " + id + " with Command Change Brightness by " + change + " .");
-		try {
-			hue.incBri(id, change);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (hueActivated) {
+			try {
+				hue.incBri(id, change);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -85,45 +90,54 @@ public class LightUnit {
 	}
 
 	public void startColorloop(int id) {
-		try {
-			hue.colorloopOn(id);
-		} catch (Exception e) {
-			e.printStackTrace();
+		System.out.println("Triggered lights: " + id + " with Command colorloop on");
+		if (hueActivated) {
+			try {
+				hue.colorloopOn(id);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void stopColorloop(int id) {
-		try {
-			hue.colorloopOff(id);
-		} catch (Exception e) {
-			e.printStackTrace();
+		System.out.println("Triggered lights: " + id + " with Command colorloop off");
+		if (hueActivated) {
+			try {
+				hue.colorloopOff(id);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void loadPreset(ArrayList<Integer> lightIds, Preset preset) {
-		try {
-			for (int id : lightIds) {
-				switch (preset) {
-				case CLEANING: // maximum white
-					hue.setAll(id, "0", "0", "254"); 
-					break;
-				case PARTY: // random changing colors at half brightness
-					hue.setAll(id, (int)(Math.random()*65535)+"", "254", "125");
-					hue.colorloopOn(id);
-					break;
-				case ROMANCE: // red half brightness
-					hue.setAll(id, "0", "200", "120"); 
-					break;
-				case WORK: // mostly white with a little yellow
-					hue.setAll(id, "12750", "50", "254"); 
-					break;
-				default:
-					System.out.println("unrecognized preset");
-					break;
+		System.out.println("Triggered lights: " + lightIds + " with Preset" + preset);
+		if (hueActivated) {
+			try {
+				for (int id : lightIds) {
+					switch (preset) {
+					case CLEANING: // maximum white
+						hue.setAll(id, "0", "0", "254");
+						break;
+					case PARTY: // random changing colors at half brightness
+						hue.setAll(id, (int) (Math.random() * 65535) + "", "254", "125");
+						hue.colorloopOn(id);
+						break;
+					case ROMANCE: // red half brightness
+						hue.setAll(id, "0", "200", "120");
+						break;
+					case WORK: // mostly white with a little yellow
+						hue.setAll(id, "12750", "50", "254");
+						break;
+					default:
+						System.out.println("unrecognized preset");
+						break;
+					}
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
