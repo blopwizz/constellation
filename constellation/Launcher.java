@@ -265,6 +265,7 @@ public class Launcher extends PApplet {
 
 	public void onAllSelectionTrigger() {
 		beforeAction();
+		lastLightAdded = 0;
 		for (int i : lightsInUse) {
 			selectedLights.add(i);
 			lightUnit.alertLight(i);
@@ -316,7 +317,6 @@ public class Launcher extends PApplet {
 			System.out.println("First light selected:" + selectedLights.get(0));
 			System.out.println("Second light selected: " + selectedLight2);
 			lightUnit.alertLight(selectedLight2);
-			this.jsonStateBefore = lightUnit.getJsonState();
 			String state1 = lightUnit.getJsonState(this.selectedLights.get(0));
 			lightUnit.setJsonState(selectedLight2, state1);
 			afterAction();
@@ -327,7 +327,7 @@ public class Launcher extends PApplet {
 
 	public void onCorrectionTrigger() {
 		int currentSelected = getLightSelected();
-		if (currentSelected != 0) {
+		if (lastLightAdded > 0 && currentSelected != 0) {
 			restorePreviousState();
 			selectedLights.remove(lastLightAdded);
 			lightUnit.alertLight(currentSelected);
@@ -355,7 +355,7 @@ public class Launcher extends PApplet {
 			selectedLights.add(id);
 		}
 	}
-	
+
 	private void restorePreviousState() {
 		lightUnit.setJsonState(this.jsonStateBefore);
 	}
