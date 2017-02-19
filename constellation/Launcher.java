@@ -259,13 +259,12 @@ public class Launcher extends PApplet {
 
 	void onCommand(SpeechUnit.Command c) {
 		command = c;
-		this.jsonStateBefore = lightUnit.getJsonState();
 		lightUnit.performAction(this.selectedLights, this.command);
-		this.prevSelectedLights = this.selectedLights;
-		this.selectedLights = new ArrayList<Integer>();
+		afterAction();
 	}
 
 	public void onAllSelectionTrigger() {
+		beforeAction();
 		for (int i : lightsInUse) {
 			selectedLights.add(i);
 			lightUnit.alertLight(i);
@@ -277,20 +276,21 @@ public class Launcher extends PApplet {
 		restorePreviousState();
 	}
 
-	public void onCopyTrigger() {
+	public boolean onCopyTrigger() {
 		int selectedLight = getLightSelected();
 		if (selectedLight > 0) {
 			beforeAction();
 			System.out.println("Last light selected: " + selectedLight);
 			this.selectedLights.add(selectedLight);
 			lightUnit.alertLight(selectedLight);
+			return true;
 		} else {
 			System.out.println("no light selected");
+			return false;
 		}
-
 	}
 
-	public void onPasteTrigger() {
+	public boolean onPasteTrigger() {
 		int selectedLight2 = getLightSelected();
 		if (selectedLight2 > 0) {
 			System.out.println("Copying light settings");
@@ -300,8 +300,10 @@ public class Launcher extends PApplet {
 			String state1 = lightUnit.getJsonState(this.selectedLights.get(0));
 			lightUnit.setJsonState(selectedLight2, state1);
 			afterAction();
+			return true;
 		} else {
 			System.out.println("no light selected");
+			return false;
 		}
 	}
 
@@ -317,8 +319,7 @@ public class Launcher extends PApplet {
 			this.jsonStateBefore = lightUnit.getJsonState();
 			String state1 = lightUnit.getJsonState(this.selectedLights.get(0));
 			lightUnit.setJsonState(selectedLight2, state1);
-			prevSelectedLights = this.selectedLights;
-			selectedLights = new ArrayList<Integer>();
+			afterAction();
 		} else {
 			System.out.println("no light selected");
 		}
@@ -353,6 +354,30 @@ public class Launcher extends PApplet {
 		for (int id : lightsInUse) {
 			selectedLights.add(id);
 		}
+	}
+	
+	private void restorePreviousState() {
+		lightUnit.setJsonState(this.jsonStateBefore);
+	}
+
+	private void updatePreviousState() {
+		this.jsonStateBefore = lightUnit.getJsonState();
+	}
+
+	public void onLoopStop() {
+		for (int id : selectedLights) {
+			lightUnit.stopColorloop(id);
+		}
+		afterAction();
+	}
+
+	private void beforeAction() {
+		updatePreviousState();
+	}
+
+	private void afterAction() {
+		prevSelectedLights = selectedLights;
+		selectedLights = new ArrayList<>();
 	}
 
 	// ------------------------- SIMPLE OPEN NI FUNCTIONS
@@ -421,27 +446,4 @@ public class Launcher extends PApplet {
 		return lightSelected;
 	}
 
-	private void restorePreviousState() {
-		lightUnit.setJsonState(this.jsonStateBefore);
-	}
-
-	private void updatePreviousState() {
-		this.jsonStateBefore = lightUnit.getJsonState();
-	}
-
-	public void onLoopStop() {
-		for (int id : selectedLights) {
-			lightUnit.stopColorloop(id);
-		}
-		afterAction();
-	}
-
-	private void beforeAction() {
-		updatePreviousState();
-	}
-
-	private void afterAction() {
-		prevSelectedLights = selectedLights;
-		selectedLights = new ArrayList<>();
-	}
 }

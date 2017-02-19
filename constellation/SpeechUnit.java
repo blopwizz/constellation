@@ -111,9 +111,10 @@ public class SpeechUnit implements Runnable {
 						switchState(State.ACTIVATED);
 						onUndoTrigger();
 					} else if (isCopy(result)) {
-						lastActionCopy = false;
-						switchState(State.COPY_CHOSEN);
-						onCopyTrigger();
+						if (onCopyTrigger()) {
+							lastActionCopy = false;
+							switchState(State.COPY_CHOSEN);
+						}
 					} else if (isLoad(result)) {
 						lastActionCopy = false;
 						onLoadTrigger();
@@ -148,9 +149,10 @@ public class SpeechUnit implements Runnable {
 				case COPY_CHOSEN:
 					lastActionCopy = false;
 					if (isCopyFinish(result)) {
-						onPasteTrigger();
-						switchState(State.ACTIVATED);
-						lastActionCopy = true;
+						if (onPasteTrigger()) {
+							switchState(State.ACTIVATED);
+							lastActionCopy = true;
+						}
 					}
 					break;
 				case COLORLOOP:
@@ -243,12 +245,12 @@ public class SpeechUnit implements Runnable {
 		main.onCopyAgain();
 	}
 
-	private void onPasteTrigger() {
-		main.onPasteTrigger();
+	private boolean onPasteTrigger() {
+		return main.onPasteTrigger();
 	}
 
-	public void onCopyTrigger() {
-		main.onCopyTrigger();
+	public boolean onCopyTrigger() {
+		return main.onCopyTrigger();
 	}
 
 	private void onUndoTrigger() {
