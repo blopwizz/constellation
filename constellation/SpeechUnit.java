@@ -17,11 +17,11 @@ public class SpeechUnit implements Runnable {
 	private final static String LANGUAGE_MODEL_PATH = "resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin";
 
 	private final static String[] ACTIVATION_STRING = { "constellation" };
-	private final static String[] CLOSE_STRING = {"close"};
+	private final static String[] CLOSE_STRING = { "close" };
 	private final static String[] SINGLE_LIGHT_SELECTER = { "switch that", "switch this", "select that", "select that",
 			"make that", "make this" };
 	private final static String[] ALL_LIGHTS_SELECTER = { "switch all", "make all", "turn all", "selecct all" };
-	private final static String[] COPY_STRING = {"copy"};
+	private final static String[] COPY_STRING = { "copy" };
 	private final static String[] COPY_FINISH = { "there" };
 	private final static String[] COPY_ADDITIONAL = { "and there" };
 	private final static String[] UNDO_STRINGS = { "undo", "revert" };
@@ -91,19 +91,20 @@ public class SpeechUnit implements Runnable {
 				System.out.println(result.getHypothesis());
 				switch (state) {
 				case IDLE:
+					lastActionCopy = false;
 					if (isActivation(result)) {
-						lastActionCopy = false;
 						switchState(State.ACTIVATED);
 					}
 					break;
 				case ACTIVATED:
 					if (isSingleLightSelection(result)) {
 						lastActionCopy = false;
-						if (onSelectionTrigger())
-							this.state = State.LIGHT_CHOSEN;
+						if (onSelectionTrigger()) {
+							switchState(State.LIGHT_CHOSEN);
+						}
 					} else if (isAllLightSelection(result)) {
 						lastActionCopy = false;
-						this.state = State.LIGHT_CHOSEN;
+						switchState(State.LIGHT_CHOSEN);
 						onAllSelectionTrigger();
 					} else if (isUndo(result)) {
 						lastActionCopy = false;
@@ -111,9 +112,10 @@ public class SpeechUnit implements Runnable {
 						onUndoTrigger();
 					} else if (isCopy(result)) {
 						lastActionCopy = false;
-						this.state = State.COPY_CHOSEN;
+						switchState(State.COPY_CHOSEN);
 						onCopyTrigger();
 					} else if (isLoad(result)) {
+						lastActionCopy = false;
 						onLoadTrigger();
 						switchState(State.LOAD);
 					} else if (lastActionCopy && isCopyAdditional(result)) {
@@ -144,18 +146,22 @@ public class SpeechUnit implements Runnable {
 					}
 					break;
 				case COPY_CHOSEN:
+					lastActionCopy = false;
 					if (isCopyFinish(result)) {
 						onPasteTrigger();
 						switchState(State.ACTIVATED);
 						lastActionCopy = true;
 					}
+					break;
 				case COLORLOOP:
+					lastActionCopy = false;
 					if (isLoopStop(result)) {
 						onLoopStopTrigger();
 						switchState(State.ACTIVATED);
 					}
 					break;
 				case LOAD:
+					lastActionCopy = false;
 					Preset returnPreset = getPreset(result);
 					if (Preset.UNDEFINED != returnPreset) {
 						onPreset(returnPreset);
@@ -260,7 +266,7 @@ public class SpeechUnit implements Runnable {
 	}
 
 	private void switchState(SpeechUnit.State state) {
-		System.out.println("SpeechUnit: switching to State" + state.name());
+		System.out.println("SpeechUnit: switching to State " + state.name());
 		this.state = state;
 	}
 

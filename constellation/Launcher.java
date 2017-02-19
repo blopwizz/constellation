@@ -49,7 +49,7 @@ public class Launcher extends PApplet {
 	private LightUnit lightUnit;
 	private Command command;
 	private boolean shouldStop = false;
-	//private SpeechUnit.Command command;
+	// private SpeechUnit.Command command;
 	// HELP TO CONTINUE
 	private boolean helpDisplay = false;
 	private int numberLights;
@@ -323,7 +323,6 @@ public class Launcher extends PApplet {
 			System.out.println("no light selected");
 		}
 	}
-	
 
 	public void onCorrectionTrigger() {
 		int currentSelected = getLightSelected();
@@ -356,7 +355,8 @@ public class Launcher extends PApplet {
 		}
 	}
 
-	// ------------------------- SIMPLE OPEN NI FUNCTIONS ----------------------------
+	// ------------------------- SIMPLE OPEN NI FUNCTIONS
+	// ----------------------------
 
 	public void drawIntersection(int userId) {
 		PVector jointPos1 = new PVector();
@@ -421,8 +421,6 @@ public class Launcher extends PApplet {
 		return lightSelected;
 	}
 
-	
-
 	private void restorePreviousState() {
 		lightUnit.setJsonState(this.jsonStateBefore);
 	}
@@ -435,6 +433,7 @@ public class Launcher extends PApplet {
 		for (int id : selectedLights) {
 			lightUnit.stopColorloop(id);
 		}
+		afterAction();
 	}
 
 	private void beforeAction() {
