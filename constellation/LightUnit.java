@@ -46,7 +46,7 @@ public class LightUnit {
 	public String getJsonState(int id) {
 		if (hueActivated) {
 			try {
-				return hue.getLightJson(id);
+				return hue.extractState(hue.getLightJson(id));
 			} catch (Exception e) {
 				e.printStackTrace();
 
@@ -57,7 +57,7 @@ public class LightUnit {
 
 	public void setJsonState(int id, String payload) {
 		System.out.println("Triggered lights: " + id + " with setting a specific setting.");
-
+		
 		if (hueActivated) {
 			try {
 				hue.setLightJson(id, payload);

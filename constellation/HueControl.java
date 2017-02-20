@@ -145,4 +145,25 @@ public class HueControl {
 		return response.toString();
 
 	}
+	
+	// dirty way to parse JSON
+	public String extractState(String jsonResponse) {
+		String result="{";
+		int pos=10;
+		int bracketcounter=1;
+		System.out.println(jsonResponse.substring(pos, pos+1));
+		while(pos<jsonResponse.length()) {
+			if(jsonResponse.substring(pos, pos+1).equals("{")){
+				bracketcounter++;
+			}else if (jsonResponse.substring(pos, pos+1).equals("}")) {
+				bracketcounter--;
+			}
+			result+=jsonResponse.substring(pos, pos+1);
+			if(bracketcounter==0){
+				break;
+			}
+			pos++;
+		}
+		return result;
+	}
 }
