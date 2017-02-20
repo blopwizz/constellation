@@ -51,7 +51,7 @@ public class Launcher extends PApplet {
 	private boolean shouldStop = false;
 	// private SpeechUnit.Command command;
 	// HELP TO CONTINUE
-	private boolean helpDisplay = false;
+	private boolean needHelp = false;
 	private int numberLights;
 	private ArrayList<Light> lights;
 	private Table lightsCoor;
@@ -75,6 +75,7 @@ public class Launcher extends PApplet {
 		updateCamera(); // Simple Open NI
 		drawSkeleton();
 		drawLightsPoints(); // draw light calibration points
+		if (needHelp) {displayHelp();}
 	}
 
 	// ---------------------- SETUP FUNCTIONS ---------------------------------
@@ -160,7 +161,16 @@ public class Launcher extends PApplet {
 			text(k, coor2d.x - 5, coor2d.y + 4);
 			popStyle();
 		}
-
+	}
+	
+	public void displayHelp() {
+		pushStyle();
+		fill(0, 140);
+		noStroke();
+		rect(50, 50, 540, 360);
+		fill(255);
+		text("COMMANDS\n Constellation \n Switch/make/select this/that \n Switch/make/turn all \n Copy that there (and there) \n Undo/revert \n \n COLORS \n blue, red, green, white, purple, yellow, random", 100, 100);
+		popStyle();
 	}
 
 	// ---------------------------- DATA -----------------------------------
@@ -189,6 +199,10 @@ public class Launcher extends PApplet {
 		saveLightsCoor();
 		System.exit(0);
 	}
+	
+	public void help() {
+		needHelp = !needHelp;
+	}
 
 	public void quantity(float number) { // controlP5 slider
 		setupLightsPosition(floor(number));
@@ -215,13 +229,6 @@ public class Launcher extends PApplet {
 		int index = mouseX + mouseY * camera.depthWidth();
 		if (mouseButton == RIGHT) {
 			printArray(realWorldMap[index]);
-		}
-	}
-
-	public void keyPressed() {
-		switch (key) {
-		case 'h':
-			helpDisplay = true;
 		}
 	}
 
