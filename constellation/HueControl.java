@@ -37,11 +37,11 @@ public class HueControl {
 	}
 
 	public void printStatus(int ID) throws Exception {
-		System.out.println(sendGET(url + username + "/lights/" + ID + "/state"));
+		System.out.println(sendGET(url + username + "/lights/" + ID + ""));
 	}
 
 	public String getLightJson(int ID) throws Exception {
-		return sendGET(url + username + "/lights/" + ID + "/state");
+		return sendGET(url + username + "/lights/" + ID + "");
 	}
 
 	public void setLightJson(int ID, String payload) throws Exception {
@@ -144,5 +144,26 @@ public class HueControl {
 		}
 		return response.toString();
 
+	}
+	
+	// dirty way to parse JSON
+	public String extractState(String jsonResponse) {
+		String result="{";
+		int pos=10;
+		int bracketcounter=1;
+		System.out.println(jsonResponse.substring(pos, pos+1));
+		while(pos<jsonResponse.length()) {
+			if(jsonResponse.substring(pos, pos+1).equals("{")){
+				bracketcounter++;
+			}else if (jsonResponse.substring(pos, pos+1).equals("}")) {
+				bracketcounter--;
+			}
+			result+=jsonResponse.substring(pos, pos+1);
+			if(bracketcounter==0){
+				break;
+			}
+			pos++;
+		}
+		return result;
 	}
 }
