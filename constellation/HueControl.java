@@ -45,7 +45,7 @@ public class HueControl {
 	}
 
 	public void setLightJson(int ID, String payload) throws Exception {
-		sendPUT(url + username + "/lights/" + ID + "", payload);
+		sendPUT(url + username + "/lights/" + ID + "/state", payload);
 	}
 
 	public void turnLightOn(int ID) throws Exception {
