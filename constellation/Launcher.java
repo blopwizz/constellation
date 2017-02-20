@@ -56,7 +56,7 @@ public class Launcher extends PApplet {
 	private ArrayList<Light> lights;
 	private Table lightsCoor;
 	private int lightSelected;
-	private int[] lightsInUse = { 4, 5, 6 };
+	private int[] lightsInUse = { 10, 11 };
 	private String jsonStateBefore = ""; // for undo
 	private ArrayList<Integer> prevSelectedLights;
 	private ArrayList<Integer> selectedLights;
@@ -306,6 +306,7 @@ public class Launcher extends PApplet {
 			System.out.println("Second light selected: " + selectedLight2);
 			lightUnit.alertLight(selectedLight2);
 			String state1 = lightUnit.getJsonState(this.selectedLights.get(0));
+			System.out.println(state1);
 			lightUnit.setJsonState(selectedLight2, state1);
 			afterAction();
 			return true;
@@ -412,7 +413,7 @@ public class Launcher extends PApplet {
 
 		for (Light light : lights) {
 			if (intersectionLight(jointPos2, dir, light.getCoor3D(), 0)) {
-				lightSelected = light.getNumber();
+				lightSelected = lightsInUse[light.getNumber()];
 			}
 		}
 

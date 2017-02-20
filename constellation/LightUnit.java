@@ -5,7 +5,7 @@ import constellation.SpeechUnit.Preset;
 
 public class LightUnit {
 
-	private boolean hueActivated = false;
+	private boolean hueActivated = true;
 	private HueControl hue;
 
 	public LightUnit() {
