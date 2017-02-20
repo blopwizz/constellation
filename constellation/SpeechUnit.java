@@ -130,10 +130,10 @@ public class SpeechUnit implements Runnable {
 						break;
 					} else if (isCorrection(result)) {
 						onCorrectionTrigger();
-						switchState(State.COLORLOOP);
 						break;
 					} else if (isLoopStart(result)) {
 						onLoopTrigger();
+						switchState(State.COLORLOOP);
 						break;
 					}
 					Command returnCommand = getCommand(result);
