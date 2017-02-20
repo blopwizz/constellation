@@ -75,7 +75,9 @@ public class Launcher extends PApplet {
 		updateCamera(); // Simple Open NI
 		drawSkeleton();
 		drawLightsPoints(); // draw light calibration points
-		if (needHelp) {displayHelp();}
+		if (needHelp) {
+			displayHelp();
+		}
 	}
 
 	// ---------------------- SETUP FUNCTIONS ---------------------------------
@@ -162,14 +164,15 @@ public class Launcher extends PApplet {
 			popStyle();
 		}
 	}
-	
+
 	public void displayHelp() {
 		pushStyle();
 		fill(0, 140);
 		noStroke();
 		rect(50, 50, 540, 360);
 		fill(255);
-		text("COMMANDS\n Constellation \n Switch/make/select this/that \n Switch/make/turn all \n Copy that there (and there) \n Undo/revert \n \n COLORS \n blue, red, green, white, purple, yellow, random", 100, 100);
+		text("COMMANDS\n Constellation \n Switch/make/select this/that \n Switch/make/turn all \n Copy that there (and there) \n Undo/revert \n \n COLORS \n blue, red, green, white, purple, yellow, random",
+				100, 100);
 		popStyle();
 	}
 
@@ -199,7 +202,7 @@ public class Launcher extends PApplet {
 		saveLightsCoor();
 		System.exit(0);
 	}
-	
+
 	public void help() {
 		needHelp = !needHelp;
 	}
@@ -253,6 +256,7 @@ public class Launcher extends PApplet {
 			System.out.println("Last light selected: " + selectedLight);
 			this.selectedLights.add(selectedLight);
 			lightUnit.alertLight(selectedLight);
+			lastLightAdded = selectedLight;
 			return true;
 		} else {
 			System.out.println("no light selected");
@@ -337,7 +341,14 @@ public class Launcher extends PApplet {
 		int currentSelected = getLightSelected();
 		if (lastLightAdded > 0 && currentSelected != 0) {
 			restorePreviousState();
-			selectedLights.remove(lastLightAdded);
+			Integer toDelete = null;
+			for (int i = 0; i < selectedLights.size(); i++) {
+				if (selectedLights.get(i).intValue() == lastLightAdded) {
+					toDelete = selectedLights.get(i);
+				}
+			}
+			if (toDelete != null)
+				selectedLights.remove(toDelete);
 			lightUnit.alertLight(currentSelected);
 			selectedLights.add(currentSelected);
 			lastLightAdded = currentSelected;

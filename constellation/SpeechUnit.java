@@ -112,7 +112,6 @@ public class SpeechUnit implements Runnable {
 						onUndoTrigger();
 					} else if (isCopy(result)) {
 						if (onCopyTrigger()) {
-							lastActionCopy = true;
 							switchState(State.COPY_CHOSEN);
 						}
 					} else if (isLoad(result)) {
